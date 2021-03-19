@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text;
+using BlazorBlog.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,10 @@ namespace BlazorBlog
 
             builder.Services.AddScoped(
                 sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+
+            builder.Services.AddSingleton<IBlogService, BlogService>();
+            builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
+            builder.Services.AddSingleton<IUriGenerator, UriGenerator>();
 
             await builder.Build().RunAsync();
         }

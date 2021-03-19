@@ -1,7 +1,25 @@
 ﻿@page "/"
+@page "/page/{Page:int}"
+@using Services
+@using Models
+@inject IBlogService BlogService
 
-<h1>Hello, world!</h1>
+<h1>Index</h1>
 
-Welcome to your new app.
+<PostList Posts="@PagedPosts.Posts"/>
 
-<SurveyPrompt Title="How is Blazor working for you?"/>
+<Pagination PagedPosts="@PagedPosts"/>
+
+@code {
+    [Parameter]
+    public int Page { get; set; }
+    
+    public PagedPostCollection PagedPosts { get; private set; } = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Page < 1) Page = 1;
+        
+        PagedPosts = await BlogService.GetPagedPostsAsync(Page - 1);
+    }
+}
