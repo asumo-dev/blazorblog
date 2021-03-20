@@ -54,7 +54,11 @@ namespace BlazorBlog.Contentful
                 .FieldMatches(m => m.Slug, slug)
                 .Limit(1);
             var entry = await _client.GetEntries(builder);
-            return await entry.Items.FirstOrDefault()?.ToBlogPostAsync();
+            
+            var post = entry.Items.FirstOrDefault();
+            if (post == null) return null;
+            
+            return await post.ToBlogPostAsync();
         }
 
         public void Dispose()
