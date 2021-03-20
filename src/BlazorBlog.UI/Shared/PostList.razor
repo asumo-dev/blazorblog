@@ -1,15 +1,11 @@
 ﻿@using Services
 @using Models
-@inject IUriGenerator UriGenerator
 
 @foreach (var post in Posts)
 {
-    <article>
-        <h2>@post.Title</h2>
-        <p>@post.PublishedAt</p>
-        <p><a href="@UriGenerator.Post(post)">READ MORE</a></p>
-    </article>
-    <hr>
+    <div class="post">
+        <PostSummary Post="@post"/>
+    </div>
 }
 
 @code {

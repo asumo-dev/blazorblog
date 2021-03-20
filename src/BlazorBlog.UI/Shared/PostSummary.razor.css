@@ -1,0 +1,11 @@
+h2 {
+  font-size: 1.6rem;
+}
+
+.published-at {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/*# sourceMappingURL=PostSummary.razor.css.map */

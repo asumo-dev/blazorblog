@@ -1,0 +1,16 @@
+﻿@using BlazorBlog.Models
+@using BlazorBlog.UI.Services
+@inject IUriGenerator UriGenerator
+
+<article>
+    <h2>@Post.Title</h2>
+    <p class="published-at">@Post.PublishedAt</p>
+    <p><a href="@UriGenerator.Post(Post)">READ MORE</a></p>
+</article>
+
+@code {
+
+    [Parameter]
+    public BlogPost Post { get; set; } = default!;
+
+}
