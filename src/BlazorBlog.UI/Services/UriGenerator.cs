@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BlazorBlog.Models;
 
 namespace BlazorBlog.UI.Services

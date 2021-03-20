@@ -1,4 +1,4 @@
-﻿using BlazorBlog.Models;
+using BlazorBlog.Models;
 
 namespace BlazorBlog.UI.Services
 {
