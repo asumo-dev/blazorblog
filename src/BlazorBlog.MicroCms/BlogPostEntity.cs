@@ -4,7 +4,7 @@ using BlazorBlog.Models;
 
 namespace BlazorBlog.MicroCms
 {
-    public class BlogPostEntry
+    public class BlogPostEntity
     {
         [JsonPropertyName(("id"))]
         public string? Id { get; set; }

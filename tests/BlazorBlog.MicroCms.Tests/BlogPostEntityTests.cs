@@ -4,12 +4,12 @@ using Xunit;
 
 namespace BlazorBlog.MicroCms.Tests
 {
-    public class BlogPostEntryTests
+    public class BlogPostEntityTests
     {
         [Fact]
         public void ToBlogPostTest()
         {
-            var entry = new BlogPostEntry
+            var entity = new BlogPostEntity
             {
                 Id = "id123",
                 Title = "Title",
@@ -17,7 +17,7 @@ namespace BlazorBlog.MicroCms.Tests
                 PublishedAt = new DateTime(2021, 1, 1)
             };
 
-            var result = entry.ToBlogPost();
+            var result = entity.ToBlogPost();
             
             Assert.Equal(
                 new BlogPost("Title", "id123", "Hello", new DateTime(2021, 1, 1)),

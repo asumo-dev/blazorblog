@@ -22,7 +22,7 @@ namespace BlazorBlog.MicroCms
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
         {
-            var entries = await _client.GetAsync<MicroCmsCollection<BlogPostEntry>>(
+            var entries = await _client.GetAsync<MicroCmsCollection<BlogPostEntity>>(
                 new NameValueCollection
                 {
                     {"fields", "title,id,body,publishedAt"},
@@ -42,12 +42,12 @@ namespace BlazorBlog.MicroCms
 
         public async Task<BlogPost?> GetPostAsync(string slug)
         {
-            var entry = await _client.GetAsync<BlogPostEntry>(slug, new NameValueCollection
+            var entity = await _client.GetAsync<BlogPostEntity>(slug, new NameValueCollection
             {
                 {"fields", "title,id,body,publishedAt"}
             });
 
-            return entry.ToBlogPost();
+            return entity.ToBlogPost();
         }
     }
 }
