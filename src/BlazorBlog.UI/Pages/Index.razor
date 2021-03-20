@@ -6,20 +6,27 @@
 
 <h1>Index</h1>
 
-<PostList Posts="@PagedPosts.Posts"/>
+@if (PagedPosts == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <PostList Posts="@PagedPosts.Posts"/>
 
-<Pagination PagedPosts="@PagedPosts"/>
+    <Pagination PagedPosts="@PagedPosts"/>
+}
 
 @code {
     [Parameter]
     public int Page { get; set; }
     
-    public PagedPostCollection PagedPosts { get; private set; } = default!;
+    public PagedPostCollection? PagedPosts { get; private set; }
 
     protected override async Task OnParametersSetAsync()
     {
         if (Page < 1) Page = 1;
-        
+
         PagedPosts = await BlogService.GetPagedPostsAsync(Page - 1);
     }
 }

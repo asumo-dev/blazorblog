@@ -5,14 +5,14 @@
 
 @if (Post == null)
 {
-    <h1>404!</h1>
+    <h1>Loading...</h1>
 }
 else
 {
     <article>
         <h1>@Post.Title</h1>
         <p>@Post.PublishedAt</p>
-        <p>@Post.Body</p>
+        <div>@((MarkupString)Post.Body)</div>
     </article>
 }
 

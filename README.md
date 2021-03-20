@@ -1,3 +1,3 @@
 # BlazorBlog
 
-Simple blog built with Blazor WebAssemly
+Simple blog built with Blazor WebAssemly, using a headless CMS
