@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BlazorBlog.Extensions;
+using BlazorBlog.UI;
 
 namespace BlazorBlog.Examples.InMemoryBlog
 {

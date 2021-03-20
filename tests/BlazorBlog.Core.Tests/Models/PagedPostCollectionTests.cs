@@ -2,7 +2,7 @@
 using BlazorBlog.Models;
 using Xunit;
 
-namespace BlazorBlog.Tests.Models
+namespace BlazorBlog.Core.Tests.Models
 {
     public class PagedPostCollectionTests
     {

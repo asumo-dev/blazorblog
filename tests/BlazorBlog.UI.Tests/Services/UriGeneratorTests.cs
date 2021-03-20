@@ -1,9 +1,10 @@
 ﻿using System;
 using BlazorBlog.Models;
 using BlazorBlog.Services;
+using BlazorBlog.UI.Services;
 using Xunit;
 
-namespace BlazorBlog.Tests.Services
+namespace BlazorBlog.UI.Tests.Services
 {
     public class UriGeneratorTests
     {

@@ -6,9 +6,9 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
-using Index = BlazorBlog.Pages.Posts.Index;
+using Index = BlazorBlog.UI.Pages.Posts.Index;
 
-namespace BlazorBlog.Tests.Pages.Posts
+namespace BlazorBlog.UI.Tests.Pages.Posts
 {
     public class IndexTests
     {

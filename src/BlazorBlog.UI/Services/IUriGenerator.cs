@@ -1,6 +1,6 @@
 ﻿using BlazorBlog.Models;
 
-namespace BlazorBlog.Services
+namespace BlazorBlog.UI.Services
 {
     public interface IUriGenerator
     {

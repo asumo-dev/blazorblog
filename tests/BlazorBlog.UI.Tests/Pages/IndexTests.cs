@@ -2,13 +2,14 @@
 using System.Threading.Tasks;
 using BlazorBlog.Models;
 using BlazorBlog.Services;
+using BlazorBlog.UI.Services;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
-using Index = BlazorBlog.Pages.Index;
+using Index = BlazorBlog.UI.Pages.Index;
 
-namespace BlazorBlog.Tests.Pages
+namespace BlazorBlog.UI.Tests.Pages
 {
     public class IndexTests
     {

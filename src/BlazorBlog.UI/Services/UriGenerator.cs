@@ -1,7 +1,7 @@
 ﻿using System;
 using BlazorBlog.Models;
 
-namespace BlazorBlog.Services
+namespace BlazorBlog.UI.Services
 {
     public class UriGenerator : IUriGenerator
     {
