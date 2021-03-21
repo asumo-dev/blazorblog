@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\BlazorBlog.GraphCms\BlazorBlog.GraphCms.csproj" />
       <ProjectReference Include="..\..\src\BlazorBlog\BlazorBlog.csproj" />
     </ItemGroup>
 
