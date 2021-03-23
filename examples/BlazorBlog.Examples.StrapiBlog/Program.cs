@@ -1,14 +1,14 @@
 using System;
 using System.Net.Http;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Text;
+using BlazorBlog.Extensions;
+using BlazorBlog.Strapi;
+using BlazorBlog.UI;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace BlazorBlog.Examples..StrapiBlog
+namespace BlazorBlog.Examples.StrapiBlog
 {
     public class Program
     {
@@ -18,7 +18,11 @@ namespace BlazorBlog.Examples..StrapiBlog
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(
-                sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+                _ => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+            
+            builder.Services.AddBlazorBlogCore();
+            builder.Services.AddStrapiRepository(options => 
+                builder.Configuration.Bind("Strapi", options));
 
             await builder.Build().RunAsync();
         }

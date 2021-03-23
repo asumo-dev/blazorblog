@@ -29,5 +29,8 @@ namespace BlazorBlog.Models
         public bool HasPrevPage => CurrentPage > 0;
 
         public bool HasNextPage => CurrentPage < TotalPages - 1;
+
+        public static PagedPostCollection Empty(int postsPerPage)
+            => new() {PostsPerPage = postsPerPage, Posts = Array.Empty<BlogPost>()};
     }
 }

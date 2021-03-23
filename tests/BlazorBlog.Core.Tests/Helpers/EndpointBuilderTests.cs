@@ -48,5 +48,13 @@ namespace BlazorBlog.Core.Tests.Helpers
             
             Assert.Equal("https://example.com/id123?id=123&name=abc", result);
         }
+        
+        [Fact]
+        public void Build_GivenBaseUrlParamWithNonDefaultPort_ReturnsEndpointWithPort()
+        {
+            var actual = EndpointBuilder
+                .Build("https://example.com:1234", "test", new NameValueCollection{ {"id", "123"}});
+            Assert.Equal("https://example.com:1234/test?id=123", actual);
+        }
     }
 }

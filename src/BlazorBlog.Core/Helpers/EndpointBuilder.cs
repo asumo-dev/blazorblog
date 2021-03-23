@@ -22,7 +22,7 @@ namespace BlazorBlog.Helpers
                 
                 // Remove port number
                 baseUrl = builder.Uri
-                    .GetComponents(UriComponents.AbsoluteUri & ~UriComponents.Port, UriFormat.UriEscaped);
+                    .GetComponents(UriComponents.AbsoluteUri & ~UriComponents.StrongPort, UriFormat.UriEscaped);
             }
 
             return baseUrl;

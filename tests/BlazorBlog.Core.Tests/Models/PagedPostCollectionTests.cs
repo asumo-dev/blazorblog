@@ -86,5 +86,16 @@ namespace BlazorBlog.Core.Tests.Models
             
             Assert.False(pagedPosts.HasNextPage);
         }
+
+        [Fact]
+        public void Empty_ReturnsCorrectly()
+        {
+            var actual = PagedPostCollection.Empty(5);
+            
+            Assert.Equal(0, actual.TotalPosts);
+            Assert.Equal(0, actual.CurrentPage);
+            Assert.Equal(5, actual.PostsPerPage);
+            Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+        }
     }
 }
