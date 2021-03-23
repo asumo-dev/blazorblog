@@ -3,29 +3,29 @@ using Xunit;
 
 namespace BlazorBlog.MicroCms.Tests
 {
-    public class UtilsTests
+    public class EndpointBuilderTests
     {
         [Fact]
-        public void BuildEndpoint_EndpointOnly_ReturnsCorrectly()
+        public void Build_EndpointOnly_ReturnsCorrectly()
         {
-            Assert.Equal("https://example.com", Utils.BuildEndpoint("https://example.com"));
+            Assert.Equal("https://example.com", EndpointBuilder.Build("https://example.com"));
         }
         
         [Theory]
         [InlineData("https://example.com", "id123", "https://example.com/id123")]
         [InlineData("https://example.com/", "id123", "https://example.com/id123")]
         [InlineData("https://example.com/test", "id123", "https://example.com/test/id123")]
-        public void BuildEndpoint_WithEndpointAndId_ReturnsCorrectly(string endpoint, string id, string expected)
+        public void Build_WithEndpointAndId_ReturnsCorrectly(string endpoint, string id, string expected)
         {
-            Assert.Equal(expected, Utils.BuildEndpoint(endpoint, id));
+            Assert.Equal(expected, EndpointBuilder.Build(endpoint, id));
         }
         
         [Theory]
         [InlineData("https://example.com")]
         [InlineData("https://example.com/")]
-        public void BuildEndpoint_WithEndpointAndQueryParams_ReturnsCorrectly(string endpoint)
+        public void Build_WithEndpointAndQueryParams_ReturnsCorrectly(string endpoint)
         {
-            var result = Utils.BuildEndpoint(endpoint, queryParams: new NameValueCollection
+            var result = EndpointBuilder.Build(endpoint, queryParams: new NameValueCollection
             {
                 {"id", "123"},
                 {"name", "abc"}
@@ -37,9 +37,9 @@ namespace BlazorBlog.MicroCms.Tests
         [Theory]
         [InlineData("https://example.com")]
         [InlineData("https://example.com/")]
-        public void BuildEndpoint_WithAllParams_ReturnsCorrectly(string endpoint)
+        public void Build_WithAllParams_ReturnsCorrectly(string endpoint)
         {
-            var result = Utils.BuildEndpoint(endpoint, "id123", new NameValueCollection
+            var result = EndpointBuilder.Build(endpoint, "id123", new NameValueCollection
             {
                 {"id", "123"},
                 {"name", "abc"}
