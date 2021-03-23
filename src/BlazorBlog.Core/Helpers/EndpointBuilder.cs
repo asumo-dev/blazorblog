@@ -2,7 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.Web;
 
-namespace BlazorBlog.MicroCms
+namespace BlazorBlog.Helpers
 {
     public static class EndpointBuilder
     {

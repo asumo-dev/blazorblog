@@ -1,7 +1,8 @@
 using System.Collections.Specialized;
+using BlazorBlog.Helpers;
 using Xunit;
 
-namespace BlazorBlog.MicroCms.Tests
+namespace BlazorBlog.Core.Tests.Helpers
 {
     public class EndpointBuilderTests
     {
