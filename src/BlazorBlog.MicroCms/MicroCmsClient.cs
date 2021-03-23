@@ -2,6 +2,7 @@ using System.Collections.Specialized;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using BlazorBlog.Helpers;
 
 namespace BlazorBlog.MicroCms
 {
@@ -22,12 +23,12 @@ namespace BlazorBlog.MicroCms
 
         public Task<T> GetAsync<T>(string id, NameValueCollection? queryParams)
         {
-            return GetAsyncCore<T>(Utils.BuildEndpoint(_endpoint, id), queryParams);
+            return GetAsyncCore<T>(EndpointBuilder.Build(_endpoint, id), queryParams);
         }
 
         private async Task<T> GetAsyncCore<T>(string endpoint, NameValueCollection? queryParams)
         {
-            endpoint = Utils.BuildEndpoint(endpoint, queryParams: queryParams);
+            endpoint = EndpointBuilder.Build(endpoint, queryParams: queryParams);
             var response = await _httpClient.GetAsync(endpoint);
             
             return await response.Content.ReadFromJsonAsync<T>();

@@ -2,30 +2,30 @@ using System;
 using System.Collections.Specialized;
 using System.Web;
 
-namespace BlazorBlog.MicroCms
+namespace BlazorBlog.Helpers
 {
-    public static class Utils
+    public static class EndpointBuilder
     {
-        public static string BuildEndpoint(string endpoint, string? id = null, NameValueCollection? queryParams = null)
+        public static string Build(string baseUrl, string? additionalPath = null, NameValueCollection? queryParams = null)
         {
-            if (id != null)
+            if (additionalPath != null)
             {
-                endpoint = $"{endpoint.TrimEnd('/')}/{id}";
+                baseUrl = $"{baseUrl.TrimEnd('/')}/{additionalPath}";
             }
             
             if (queryParams != null)
             {
-                var builder = new UriBuilder(endpoint)
+                var builder = new UriBuilder(baseUrl)
                 {
                     Query = ToQueryString(queryParams)
                 };
                 
                 // Remove port number
-                endpoint = builder.Uri
-                    .GetComponents(UriComponents.AbsoluteUri & ~UriComponents.Port, UriFormat.UriEscaped);
+                baseUrl = builder.Uri
+                    .GetComponents(UriComponents.AbsoluteUri & ~UriComponents.StrongPort, UriFormat.UriEscaped);
             }
 
-            return endpoint;
+            return baseUrl;
         }
 
         private static string ToQueryString(NameValueCollection collection)
