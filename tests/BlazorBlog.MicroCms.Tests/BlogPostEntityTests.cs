@@ -1,5 +1,5 @@
 using System;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 using Xunit;
 
 namespace BlazorBlog.MicroCms.Tests

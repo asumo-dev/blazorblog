@@ -1,6 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 
 namespace BlazorBlog.GraphCms
 {

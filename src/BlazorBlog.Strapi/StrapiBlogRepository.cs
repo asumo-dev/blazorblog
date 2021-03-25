@@ -4,8 +4,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
-using BlazorBlog.Services;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

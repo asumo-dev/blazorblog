@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BlazorBlog.Models
+namespace BlazorBlog.Core.Models
 {
     public class PagedPostCollection
     {

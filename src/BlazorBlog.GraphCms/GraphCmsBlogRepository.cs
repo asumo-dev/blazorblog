@@ -1,8 +1,8 @@
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
-using BlazorBlog.Services;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;

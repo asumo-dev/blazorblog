@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 using Contentful.Core.Models;
 
 namespace BlazorBlog.Contentful

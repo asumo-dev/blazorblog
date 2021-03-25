@@ -1,5 +1,5 @@
 using System.Text.Json;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 using Xunit;
 
 namespace BlazorBlog.Ghost.Tests

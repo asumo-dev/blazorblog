@@ -1,6 +1,6 @@
 using System;
 using System.Text.Json;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 using Xunit;
 
 namespace BlazorBlog.Strapi.Tests

@@ -1,5 +1,5 @@
 using System;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 
 namespace BlazorBlog.UI.Services
 {

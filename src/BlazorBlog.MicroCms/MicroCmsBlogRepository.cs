@@ -1,10 +1,10 @@
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
-using BlazorBlog.Services;
 using Microsoft.Extensions.Options;
 using System.Net.Http;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 
 namespace BlazorBlog.MicroCms
 {

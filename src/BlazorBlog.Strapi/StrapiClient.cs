@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BlazorBlog.Helpers;
+using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.Strapi
 {

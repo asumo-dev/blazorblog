@@ -1,7 +1,8 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using BlazorBlog.Services;
+using BlazorBlog.Core.Services;
+using BlazorBlog.Examples.InMemoryBlog.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using BlazorBlog.Extensions;
