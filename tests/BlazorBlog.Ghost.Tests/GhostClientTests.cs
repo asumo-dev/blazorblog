@@ -15,10 +15,10 @@ namespace BlazorBlog.Ghost.Tests
         [Fact]
         public async Task GetPostsAsync_WithSlug_RequestsToCorrectEndpoint()
         {
-            var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts/slug?key=content_api_key", "{}");
-            var strapiClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts/slug/welcome?key=content_api_key", "{}");
+            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
 
-            await strapiClient.GetPostsAsync("slug");
+            await ghostClient.GetPostsAsync("welcome");
 
             mockHttp.VerifyNoOutstandingExpectation();
         }
@@ -29,9 +29,9 @@ namespace BlazorBlog.Ghost.Tests
             var mockHttp = CreateMockHttp(
                 "https://example.com/ghost/api/v3/content/posts?page=1&limit=5&key=content_api_key",
                 "{}");
-            var strapiClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
 
-            await strapiClient.GetPostsAsync(@params: new NameValueCollection
+            await ghostClient.GetPostsAsync(@params: new NameValueCollection
             {
                 {"page", "1"},
                 {"limit", "5"}
@@ -46,10 +46,10 @@ namespace BlazorBlog.Ghost.Tests
             var actualGhostResponse = TestData.GhostResponseJson;
             var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", actualGhostResponse);
             
-            var strapiClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
 
             // Act
-            var actual = await strapiClient.GetPostsAsync();
+            var actual = await ghostClient.GetPostsAsync();
 
             var expected = TestData.PostsResponse;
 
@@ -62,11 +62,11 @@ namespace BlazorBlog.Ghost.Tests
         {
             var invalidResponse = "123";
             var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", invalidResponse);
-            var strapiClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                await strapiClient.GetPostsAsync();
+                await ghostClient.GetPostsAsync();
             });
         }
         

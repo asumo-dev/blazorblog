@@ -25,7 +25,10 @@ namespace BlazorBlog.Ghost
         public async Task<PostsResponse?> GetPostsAsync(string? slug = null, NameValueCollection? @params = null)
         {
             var newParams = CloneParamsWithKey(@params);
-            var endpoint = EndpointBuilder.Build(_postsEndpoint, slug, newParams);
+            var endpoint = EndpointBuilder.Build(
+                _postsEndpoint,
+                slug != null ? $"slug/{slug}" : null,
+                newParams);
             var response = await _httpClient.GetAsync(endpoint);
 
             CheckStatusCode(response.StatusCode);
