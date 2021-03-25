@@ -11,6 +11,7 @@ namespace BlazorBlog.Core.Tests.Models
         {
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
+                // ReSharper disable once ObjectCreationAsStatement
                 new PagedPostCollection
                 {
                     PostsPerPage = 0
