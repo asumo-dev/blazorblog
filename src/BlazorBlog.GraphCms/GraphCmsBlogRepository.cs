@@ -83,7 +83,7 @@ query pagedPosts($skip: Int, $first: Int) {
         {
             var response = await SendQueryAsync<PostResponse>(PostQuery, new {slug});
 
-            return response.Data.Post?.ToBlogPost();
+            return response.Data.Post.ToBlogPost();
         }
 
         private Task<GraphQLResponse<T>> SendQueryAsync<T>(string query, object variables)
