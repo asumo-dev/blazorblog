@@ -7,26 +7,30 @@ namespace BlazorBlog.GraphCms
     public record PostContent
     {
         [JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
             
         [JsonPropertyName("slug")]
-        public string Slug { get; set; }
+        public string? Slug { get; set; }
             
         [JsonPropertyName("content")]
-        public ContentContent Content { get; set; }
+        public ContentContent? Content { get; set; }
             
         [JsonPropertyName("publishedAt")]
-        public DateTimeOffset PublishedAt { get; set; }
+        public DateTimeOffset? PublishedAt { get; set; }
 
         public record ContentContent
         {
             [JsonPropertyName("html")]
-            public string Html { get; set; }
+            public string? Html { get; set; }
         }
 
         public BlogPost ToBlogPost()
         {
-            return new(Title, Slug, Content.Html, PublishedAt.LocalDateTime);
+            if (Title == null || Slug == null || Content?.Html == null || PublishedAt == null)
+                throw new InvalidOperationException(
+                    "Content fields cannot be null. Check your settings on Ghost website.");
+
+            return new(Title, Slug, Content.Html, PublishedAt.Value.LocalDateTime);
         }
     }
 }

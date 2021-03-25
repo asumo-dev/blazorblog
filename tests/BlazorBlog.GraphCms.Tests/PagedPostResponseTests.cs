@@ -91,8 +91,8 @@ namespace BlazorBlog.GraphCms.Tests
             // Act
             var result = JsonConvert.DeserializeObject<PagedPostsResponse>(graphCmsJson);
 
-            Assert.Equal(expected.PostsConnection.Aggregate, result.PostsConnection.Aggregate);
-            Assert.Equal(expected.PostsConnection.Edges, result.PostsConnection.Edges);
+            Assert.Equal(expected.PostsConnection.Aggregate, result.PostsConnection?.Aggregate);
+            Assert.Equal(expected.PostsConnection.Edges, result.PostsConnection?.Edges);
         }
     }
 }

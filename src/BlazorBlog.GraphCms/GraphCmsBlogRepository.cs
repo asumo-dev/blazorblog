@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
@@ -67,14 +66,23 @@ query pagedPosts($skip: Int, $first: Int) {
             var first = postsPerPage;
             var response = await SendQueryAsync<PagedPostsResponse>(PagedPostsQuery, new {skip, first});
 
+            if (response.Data.PostsConnection?.Edges == null ||
+                response.Data.PostsConnection.Aggregate?.Count == null)
+            {
+                return PagedPostCollection.Empty(postsPerPage);
+            }
+
+            var posts = ToBlogPosts(response.Data.PostsConnection.Edges);
+            if (posts == null)
+            {
+                return PagedPostCollection.Empty(postsPerPage);
+            }
+
             return new PagedPostCollection
             {
-                Posts = response.Data.PostsConnection.Edges
-                    .Select(m => m.Node.ToBlogPost())
-                    .ToList()
-                    .AsReadOnly(),
+                Posts = posts,
                 CurrentPage = page,
-                TotalPosts = response.Data.PostsConnection.Aggregate.Count,
+                TotalPosts = response.Data.PostsConnection.Aggregate.Count.Value,
                 PostsPerPage = postsPerPage
             };
         }
@@ -83,7 +91,24 @@ query pagedPosts($skip: Int, $first: Int) {
         {
             var response = await SendQueryAsync<PostResponse>(PostQuery, new {slug});
 
-            return response.Data.Post.ToBlogPost();
+            return response.Data.Post?.ToBlogPost();
+        }
+
+        private BlogPost[]? ToBlogPosts(PagedPostsResponse.PostsConnectionContent.EdgeContent[] edges)
+        {
+            var posts = new BlogPost[edges.Length];
+            for (var i = 0; i < edges.Length; i++)
+            {
+                var post = edges[i].Node?.ToBlogPost();
+                if (post == null)
+                {
+                    return null;
+                }
+                
+                posts[i] = post;
+            }
+
+            return posts;
         }
 
         private Task<GraphQLResponse<T>> SendQueryAsync<T>(string query, object variables)
