@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
-using BlazorBlog.Services;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

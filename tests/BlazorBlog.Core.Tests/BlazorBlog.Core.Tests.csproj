@@ -5,7 +5,9 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>BlazorBlog.Tests</RootNamespace>
+        <RootNamespace>BlazorBlog.Core.Tests</RootNamespace>
+
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,17 +1,14 @@
 using System;
 using System.Net.Http;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Text;
 using BlazorBlog.Contentful;
+using BlazorBlog.Core.Services;
 using BlazorBlog.Extensions;
-using BlazorBlog.Services;
 using BlazorBlog.UI;
 using Contentful.Core.Configuration;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace BlazorBlog.Examples.ContentfulBlog
 {
@@ -23,7 +20,7 @@ namespace BlazorBlog.Examples.ContentfulBlog
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(
-                sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+                _ => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
             
             builder.Services.AddBlazorBlogCore();
 

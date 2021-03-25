@@ -1,5 +1,5 @@
 ﻿using System;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 using Xunit;
 
 namespace BlazorBlog.Core.Tests.Models
@@ -11,6 +11,7 @@ namespace BlazorBlog.Core.Tests.Models
         {
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
+                // ReSharper disable once ObjectCreationAsStatement
                 new PagedPostCollection
                 {
                     PostsPerPage = 0

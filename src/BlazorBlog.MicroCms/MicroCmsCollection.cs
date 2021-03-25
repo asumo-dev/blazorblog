@@ -6,10 +6,10 @@ namespace BlazorBlog.MicroCms
     public class MicroCmsCollection<T>
     {
         [JsonPropertyName(("contents"))]
-        public ICollection<T> Contents { get; set; }
-        
+        public ICollection<T> Contents { get; set; } = default!;
+
         [JsonPropertyName(("totalCount"))]
-        public int TotalCount { get; set; }
+        public int TotalCount { get; set; } = default;
         
         [JsonPropertyName(("offset"))]
         public int Offset { get; set; }

@@ -1,7 +1,7 @@
 @page "/"
 @page "/page/{Page:int}"
-@using Models
-@using BlazorBlog.Services
+@using BlazorBlog.Core.Services
+@using BlazorBlog.Core.Models
 @inject IBlogService BlogService
 
 @if (PagedPosts == null)
@@ -16,6 +16,8 @@ else
 }
 
 @code {
+    #nullable enable
+    
     [Parameter]
     public int Page { get; set; }
     

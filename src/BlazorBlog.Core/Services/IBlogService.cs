@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
 
-namespace BlazorBlog.Services
+namespace BlazorBlog.Core.Services
 {
     public interface IBlogService
     {

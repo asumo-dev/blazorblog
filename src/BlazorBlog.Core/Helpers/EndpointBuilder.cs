@@ -2,7 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.Web;
 
-namespace BlazorBlog.Helpers
+namespace BlazorBlog.Core.Helpers
 {
     public static class EndpointBuilder
     {

@@ -1,5 +1,5 @@
 using System.Collections.Specialized;
-using BlazorBlog.Helpers;
+using BlazorBlog.Core.Helpers;
 using Xunit;
 
 namespace BlazorBlog.Core.Tests.Helpers

@@ -1,4 +1,4 @@
-using BlazorBlog.Services;
+using BlazorBlog.Core.Services;
 using BlazorBlog.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 

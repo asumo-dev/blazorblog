@@ -1,10 +1,10 @@
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
-using BlazorBlog.Services;
 using Microsoft.Extensions.Options;
 using System.Net.Http;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 
 namespace BlazorBlog.MicroCms
 {
@@ -30,6 +30,11 @@ namespace BlazorBlog.MicroCms
                     {"offset", (postsPerPage * page).ToString()},
                     {"orders", "-publishedAt"}
                 });
+
+            if (entries == null)
+            {
+                return PagedPostCollection.Empty(postsPerPage);
+            }
             
             return new PagedPostCollection
             {
@@ -47,7 +52,7 @@ namespace BlazorBlog.MicroCms
                 {"fields", "title,id,body,publishedAt"}
             });
 
-            return entity.ToBlogPost();
+            return entity?.ToBlogPost();
         }
     }
 }

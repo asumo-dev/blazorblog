@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorBlog.Models;
+using BlazorBlog.Core.Models;
+using BlazorBlog.Core.Services;
 
-namespace BlazorBlog.Services
+namespace BlazorBlog.Examples.InMemoryBlog.Services
 {
     public class InMemoryBlogRepository : IBlogRepository
     {

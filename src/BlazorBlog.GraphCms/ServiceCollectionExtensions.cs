@@ -1,5 +1,5 @@
 using System;
-using BlazorBlog.Services;
+using BlazorBlog.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorBlog.GraphCms
