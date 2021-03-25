@@ -30,6 +30,11 @@ namespace BlazorBlog.MicroCms
                     {"offset", (postsPerPage * page).ToString()},
                     {"orders", "-publishedAt"}
                 });
+
+            if (entries == null)
+            {
+                return PagedPostCollection.Empty(postsPerPage);
+            }
             
             return new PagedPostCollection
             {
@@ -47,7 +52,7 @@ namespace BlazorBlog.MicroCms
                 {"fields", "title,id,body,publishedAt"}
             });
 
-            return entity.ToBlogPost();
+            return entity?.ToBlogPost();
         }
     }
 }

@@ -18,15 +18,15 @@ namespace BlazorBlog.MicroCms
             _endpoint = endpoint;
         }
         
-        public Task<T> GetAsync<T>(NameValueCollection? queryParams)
+        public Task<T?> GetAsync<T>(NameValueCollection? queryParams)
             => GetAsyncCore<T>(_endpoint, queryParams);
 
-        public Task<T> GetAsync<T>(string id, NameValueCollection? queryParams)
+        public Task<T?> GetAsync<T>(string id, NameValueCollection? queryParams)
         {
             return GetAsyncCore<T>(EndpointBuilder.Build(_endpoint, id), queryParams);
         }
 
-        private async Task<T> GetAsyncCore<T>(string endpoint, NameValueCollection? queryParams)
+        private async Task<T?> GetAsyncCore<T>(string endpoint, NameValueCollection? queryParams)
         {
             endpoint = EndpointBuilder.Build(endpoint, queryParams: queryParams);
             var response = await _httpClient.GetAsync(endpoint);
