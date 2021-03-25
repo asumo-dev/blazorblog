@@ -17,7 +17,7 @@ namespace BlazorBlog.Examples.InMemoryBlog
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(
-                sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+                _ => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
 
             builder.Services.AddBlazorBlogCore();
             builder.Services.AddSingleton<IBlogRepository, InMemoryBlogRepository>();
