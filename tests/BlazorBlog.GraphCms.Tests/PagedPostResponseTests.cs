@@ -84,10 +84,6 @@ namespace BlazorBlog.GraphCms.Tests
                                    DateTimeKind.Utc)
                             }
                         }
-                    },
-                    PageInfo = new PagedPostsResponse.PostsConnectionContent.PageInfoContent
-                    {
-                        PageSize = 2
                     }
                 }
             };
@@ -97,7 +93,6 @@ namespace BlazorBlog.GraphCms.Tests
 
             Assert.Equal(expected.PostsConnection.Aggregate, result.PostsConnection.Aggregate);
             Assert.Equal(expected.PostsConnection.Edges, result.PostsConnection.Edges);
-            Assert.Equal(expected.PostsConnection.PageInfo, result.PostsConnection.PageInfo);
         }
     }
 }

@@ -15,9 +15,6 @@ namespace BlazorBlog.GraphCms
             [JsonPropertyName("edges")]
             public EdgeContent[] Edges { get; set; }
             
-            [JsonPropertyName("pageInfo")]
-            public PageInfoContent PageInfo { get; set; }
-            
             public record AggregateContent
             {
                 [JsonPropertyName("count")]
@@ -28,12 +25,6 @@ namespace BlazorBlog.GraphCms
             {
                 [JsonPropertyName("node")]
                 public PostContent Node { get; set; }
-            }
-
-            public record PageInfoContent
-            {
-                [JsonPropertyName("pageSize")]
-                public int PageSize { get; set; }
             }
         }
     }
