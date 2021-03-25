@@ -1,8 +1,11 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BlazorBlog.Extensions;
+using BlazorBlog.Ghost;
 using BlazorBlog.UI;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorBlog.Examples.GhostBlog
@@ -16,6 +19,10 @@ namespace BlazorBlog.Examples.GhostBlog
 
             builder.Services.AddScoped(
                 _ => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+            
+            builder.Services.AddBlazorBlogCore();
+            builder.Services.AddGhostRepository(options => 
+                builder.Configuration.Bind("Ghost", options));
 
             await builder.Build().RunAsync();
         }
