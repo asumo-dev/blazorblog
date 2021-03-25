@@ -16,6 +16,8 @@
 </div>
 
 @code {
+    #nullable enable
+    
     private bool _collapseNavMenu = true;
 
     private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
