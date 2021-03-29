@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorBlog.Examples.GhostBl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorBlog.Ghost.Tests", "tests\BlazorBlog.Ghost.Tests\BlazorBlog.Ghost.Tests.csproj", "{557C26D7-5D29-497C-8863-557A5988064A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorBlog.Contentful.Tests", "tests\BlazorBlog.Contentful.Tests\BlazorBlog.Contentful.Tests.csproj", "{DE41149A-E3F9-4C25-A47F-7F38AD86557A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,6 +134,10 @@ Global
 		{557C26D7-5D29-497C-8863-557A5988064A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{557C26D7-5D29-497C-8863-557A5988064A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{557C26D7-5D29-497C-8863-557A5988064A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE41149A-E3F9-4C25-A47F-7F38AD86557A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE41149A-E3F9-4C25-A47F-7F38AD86557A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE41149A-E3F9-4C25-A47F-7F38AD86557A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE41149A-E3F9-4C25-A47F-7F38AD86557A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8BA67F5D-C202-486F-A622-3D1F8CFF5C14} = {CEEFA4EC-1650-4254-9B41-C252101CBAF1}
@@ -154,5 +160,6 @@ Global
 		{AEBDC019-95DD-45FC-8CEB-A1AA57FD6F2F} = {CEEFA4EC-1650-4254-9B41-C252101CBAF1}
 		{153DB780-3C6F-420E-8AEC-AFBBF4B3FB76} = {76F55C15-9A53-4F7E-AF21-A106DBB634A6}
 		{557C26D7-5D29-497C-8863-557A5988064A} = {8CFAD95E-AB71-4780-AE01-872F73AF01C3}
+		{DE41149A-E3F9-4C25-A47F-7F38AD86557A} = {8CFAD95E-AB71-4780-AE01-872F73AF01C3}
 	EndGlobalSection
 EndGlobal
