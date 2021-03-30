@@ -20,7 +20,7 @@ namespace BlazorBlog.Contentful.Tests
         [Fact]
         public async Task GetPagedPostsAsync_ReturnsCorrectly()
         {
-            var getEntriesReturnedValue = Task.FromResult(
+            var getEntriesReturn = Task.FromResult(
                 new ContentfulCollection<BlogPostEntry>
                 {
                     Items = new[] { TestData.BlogPostEntry },
@@ -29,7 +29,7 @@ namespace BlazorBlog.Contentful.Tests
                     Total = 11
                 });
 
-            Expression<Func<QueryBuilder<BlogPostEntry>, bool>> expectedQueryBuilder = (b) =>
+            Expression<Func<QueryBuilder<BlogPostEntry>, bool>> expectedQuery = (b) =>
                 b.Build()
                     .AsQueryString()
                     .Contains(new NameValueCollection()
@@ -39,8 +39,8 @@ namespace BlazorBlog.Contentful.Tests
                         {"limit", "5"},
                     });
             var client = Mock.Of<IContentfulClient>(m =>
-                m.GetEntries(It.Is(expectedQueryBuilder), It.IsAny<CancellationToken>())
-                == getEntriesReturnedValue);
+                m.GetEntries(It.Is(expectedQuery), It.IsAny<CancellationToken>())
+                == getEntriesReturn);
 
             var subject = CreateContentfulBlogRepository(client);
 
@@ -84,7 +84,7 @@ namespace BlazorBlog.Contentful.Tests
         [Fact]
         public async Task GetPostAsync_ReturnsCorrectly()
         {
-            var getEntriesReturnedValue = Task.FromResult(
+            var getEntriesReturn = Task.FromResult(
                 new ContentfulCollection<BlogPostEntry>
                 {
                     Items = new[] { TestData.BlogPostEntry },
@@ -104,7 +104,7 @@ namespace BlazorBlog.Contentful.Tests
                     });
             var client = Mock.Of<IContentfulClient>(m =>
                 m.GetEntries(It.Is(expectedQueryBuilder), It.IsAny<CancellationToken>())
-                == getEntriesReturnedValue);
+                == getEntriesReturn);
 
             var subject = CreateContentfulBlogRepository(client);
 

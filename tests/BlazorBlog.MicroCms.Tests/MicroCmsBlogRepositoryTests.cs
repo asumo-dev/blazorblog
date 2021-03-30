@@ -78,7 +78,7 @@ namespace BlazorBlog.MicroCms.Tests
         }
 
         [Fact]
-        public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
+        public async Task GetPostAsync_ReturnsNull_WhenMicroCmsClientThrowsException()
         {
             var mockClient = new Mock<IMicroCmsClient>();
             mockClient.Setup(m => m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))

@@ -51,7 +51,7 @@ namespace BlazorBlog.Ghost.Tests
         }
         
         [Fact]
-        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenHttpClientThrowsException()
+        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenGhostClientThrowsException()
         {
             var mockClient = new Mock<IGhostClient>();
             mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))
@@ -94,7 +94,7 @@ namespace BlazorBlog.Ghost.Tests
         }
         
         [Fact]
-        public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
+        public async Task GetPostAsync_ReturnsNull_WhenGhostClientThrowsException()
         {
             var mockClient = new Mock<IGhostClient>();
             mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))

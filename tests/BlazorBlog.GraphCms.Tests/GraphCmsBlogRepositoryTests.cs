@@ -83,7 +83,7 @@ namespace BlazorBlog.GraphCms.Tests
         }
 
         [Fact]
-        public async Task GetPostAsync_ReturnsNull_WhenStrapiClientThrowsException()
+        public async Task GetPostAsync_ReturnsNull_WhenGraphCmsClientThrowsException()
         {
             var mockClient = new Mock<IGraphCmsClient>();
             mockClient.Setup(m => m.SendQueryAsync<PostResponse>(It.IsAny<string>(), It.IsAny<object>()))
