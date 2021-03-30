@@ -2,10 +2,8 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorBlog.Contentful;
-using BlazorBlog.Core.Services;
 using BlazorBlog.Extensions;
 using BlazorBlog.UI;
-using Contentful.Core.Configuration;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,9 +22,8 @@ namespace BlazorBlog.Examples.ContentfulBlog
             
             builder.Services.AddBlazorBlogCore();
 
-            builder.Services.Configure<ContentfulOptions>(options =>
+            builder.Services.AddContentfulRepository(options =>
                 builder.Configuration.Bind("Contentful", options));
-            builder.Services.AddSingleton<IBlogRepository, ContentfulBlogRepository>();
 
             await builder.Build().RunAsync();
         }

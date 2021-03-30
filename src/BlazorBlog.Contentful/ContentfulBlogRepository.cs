@@ -1,26 +1,20 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
 using Contentful.Core;
-using Contentful.Core.Configuration;
 using Contentful.Core.Search;
-using Microsoft.Extensions.Options;
 
 namespace BlazorBlog.Contentful
 {
-    public class ContentfulBlogRepository : IBlogRepository, IDisposable
+    public class ContentfulBlogRepository : IBlogRepository
     {
-        private readonly HttpClient _httpClient;
-        private readonly ContentfulClient _client;
+        private readonly IContentfulClient _client;
 
-        public ContentfulBlogRepository(IOptions<ContentfulOptions> options)
+        public ContentfulBlogRepository(IContentfulClient contentfulClient)
         {
-            _httpClient = new HttpClient();
-            _client = new ContentfulClient(_httpClient, options.Value);
+            _client = contentfulClient;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
@@ -58,11 +52,6 @@ namespace BlazorBlog.Contentful
             if (post == null) return null;
             
             return await post.ToBlogPostAsync();
-        }
-
-        public void Dispose()
-        {
-            _httpClient.Dispose();
         }
     }
 }
