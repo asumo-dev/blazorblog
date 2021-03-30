@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -21,7 +23,7 @@ namespace BlazorBlog.MicroCms.Tests
                 m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
                 == getAsyncReturn);
 
-            var subject = new MicroCmsBlogRepository(client);
+            var subject = CreateMicroCmsBlogRepository(client);
 
             // Act
             var actual = await subject.GetPagedPostsAsync(3, 5);
@@ -39,7 +41,25 @@ namespace BlazorBlog.MicroCms.Tests
             Assert.Equal(expected.PostsPerPage, actual.PostsPerPage);
             Assert.Equal(expected.Posts, actual.Posts);
         }
-        
+
+        [Fact]
+        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenMicroCmsClientThrowsException()
+        {
+            var mockClient = new Mock<IMicroCmsClient>();
+            mockClient.Setup(m => m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
+                .ThrowsAsync(new InvalidOperationException());
+
+            var subject = CreateMicroCmsBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPagedPostsAsync(1, 5);
+
+            Assert.Equal(0, actual.CurrentPage);
+            Assert.Equal(0, actual.TotalPosts);
+            Assert.Equal(5, actual.PostsPerPage);
+            Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+        }
+
         [Fact]
         public async Task GetPostsAsync_ReturnsCorrectly()
         {
@@ -48,13 +68,34 @@ namespace BlazorBlog.MicroCms.Tests
                 m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
                 == getAsyncReturn);
 
-            var subject = new MicroCmsBlogRepository(client);
+            var subject = CreateMicroCmsBlogRepository(client);
 
             // Act
             var actual = await subject.GetPostAsync("id123");
 
             var expected = TestData.BlogPost;
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
+        {
+            var mockClient = new Mock<IMicroCmsClient>();
+            mockClient.Setup(m => m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
+                .ThrowsAsync(new InvalidOperationException());
+
+            var subject = CreateMicroCmsBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPostAsync("slug");
+
+            Assert.Null(actual);
+        }
+
+        private MicroCmsBlogRepository CreateMicroCmsBlogRepository(IMicroCmsClient client)
+        {
+            var logger = Mock.Of<ILogger<MicroCmsBlogRepository>>();
+            return new MicroCmsBlogRepository(client, logger);
         }
     }
 }

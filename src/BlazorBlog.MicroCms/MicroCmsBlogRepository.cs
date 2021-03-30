@@ -1,17 +1,21 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace BlazorBlog.MicroCms
 {
     public class MicroCmsBlogRepository : IBlogRepository
     {
         private readonly IMicroCmsClient _client;
+        private readonly ILogger<MicroCmsBlogRepository> _logger;
 
-        public MicroCmsBlogRepository(IMicroCmsClient client)
+        public MicroCmsBlogRepository(IMicroCmsClient client, ILogger<MicroCmsBlogRepository> logger)
         {
             _client = client;
+            _logger = logger;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
@@ -20,7 +24,18 @@ namespace BlazorBlog.MicroCms
                 .Limit(postsPerPage)
                 .Offset(postsPerPage * page)
                 .OrderByDescending(m => m.PublishedAt);
-            var entries = await _client.GetContentsAsync(builder);
+
+            MicroCmsCollection<BlogPostEntity>? entries;
+
+            try
+            {
+                entries = await _client.GetContentsAsync(builder);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from microCMS");
+                return PagedPostCollection.Empty(postsPerPage);
+            }
 
             if (entries == null)
             {
@@ -40,9 +55,19 @@ namespace BlazorBlog.MicroCms
         {
             var builder = new MicroCmsQueryBuilder<BlogPostEntity>()
                 .ContentIdIs(slug);
-            var entity = await _client.GetContentAsync(builder);
 
-            return entity?.ToBlogPost();
+            try
+            {
+                var entity = await _client.GetContentAsync(builder);
+
+                return entity?.ToBlogPost();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from microCMS");
+
+                return null;
+            }
         }
     }
 }
