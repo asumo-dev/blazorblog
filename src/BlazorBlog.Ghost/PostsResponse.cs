@@ -12,7 +12,6 @@ namespace BlazorBlog.Ghost
         [JsonPropertyName("meta")]
         public MetaContent? Meta { get; set; }
 
-
         public record MetaContent
         {
             [JsonPropertyName("pagination")]

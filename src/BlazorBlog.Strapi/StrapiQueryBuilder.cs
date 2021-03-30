@@ -22,8 +22,6 @@ namespace BlazorBlog.Strapi
             => AddParam($"{GetPropertyName(keySelector)}_eq", value);
 
         public override string Build()
-        {
-            return GetQueryString();
-        }
+            => GetQueryString();
     }
 }
