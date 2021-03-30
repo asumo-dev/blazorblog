@@ -6,18 +6,21 @@ using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.MicroCms
 {
-    public class MicroCmsClient
+    public class MicroCmsClient : IMicroCmsClient
     {
         private readonly HttpClient _httpClient;
         private readonly string _endpoint;
 
-        public MicroCmsClient(string endpoint, string apiKey, HttpClient httpClient)
+        public MicroCmsClient(HttpClient httpClient, MicroCmsOptions options)
+            : this(httpClient, options.Endpoint, options.ApiKey){}
+
+        public MicroCmsClient(HttpClient httpClient, string endpoint, string apiKey)
         {
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
             _endpoint = endpoint;
         }
-        
+
         public Task<T?> GetAsync<T>(NameValueCollection? queryParams)
             => GetAsyncCore<T>(_endpoint, queryParams);
 

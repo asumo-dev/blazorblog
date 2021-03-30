@@ -1,73 +1,61 @@
-using System.Net.Http;
-using Microsoft.Extensions.Options;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
+using BlazorBlog.Core.Models;
 using Moq;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace BlazorBlog.MicroCms.Tests
 {
     public class MicroCmsBlogRepositoryTests
     {
-        private const string ApiKey = "API_KEY";
-        
         [Fact]
-        public void GetPagedPostsAsync_RequestCorrectly()
+        public async Task GetPagedPostsAsync_ReturnsCorrectly()
         {
-            var mockHttp = CreateMockHttp(
-                "https://example.com/test?fields=title,id,body,publishedAt&limit=5&offset=15&orders=-publishedAt");
-            var httpClientFactory = CreateHttpClientFactory(mockHttp);
-            var options = CreateOptions();
-            
-            var repository = new MicroCmsBlogRepository(options, httpClientFactory);
+            var getAsyncReturn = Task.FromResult(new MicroCmsCollection<BlogPostEntity>
+            {
+                Contents = new [] {TestData.BlogPostEntity},
+                Limit = 5,
+                Offset = 15,
+                TotalCount = 16
+            });
+            var client = Mock.Of<IMicroCmsClient>(m =>
+                m.GetAsync<MicroCmsCollection<BlogPostEntity>>(It.IsAny<NameValueCollection>())
+                == getAsyncReturn);
+
+            var subject = new MicroCmsBlogRepository(client);
 
             // Act
-            repository.GetPagedPostsAsync(3, 5);
+            var actual = await subject.GetPagedPostsAsync(3, 5);
 
-            mockHttp.VerifyNoOutstandingExpectation();
+            var expected = new PagedPostCollection
+            {
+                CurrentPage = 3,
+                PostsPerPage = 5,
+                TotalPosts = 16,
+                Posts = new[] { TestData.BlogPost }
+            };
+
+            Assert.Equal(expected.CurrentPage, actual.CurrentPage);
+            Assert.Equal(expected.TotalPosts, actual.TotalPosts);
+            Assert.Equal(expected.PostsPerPage, actual.PostsPerPage);
+            Assert.Equal(expected.Posts, actual.Posts);
         }
         
         [Fact]
-        public void GetPostsAsync_RequestCorrectly()
+        public async Task GetPostsAsync_ReturnsCorrectly()
         {
-            var mockHttp = CreateMockHttp(
-                "https://example.com/test/id123?fields=title,id,body,publishedAt");
-            var httpClientFactory = CreateHttpClientFactory(mockHttp);
-            var options = CreateOptions();
+            var getAsyncReturn = Task.FromResult(TestData.BlogPostEntity);
+            var client = Mock.Of<IMicroCmsClient>(m =>
+                m.GetAsync<BlogPostEntity>("id123", It.IsAny<NameValueCollection>())
+                == getAsyncReturn);
 
-            var repository = new MicroCmsBlogRepository(options, httpClientFactory);
+            var subject = new MicroCmsBlogRepository(client);
 
             // Act
-            repository.GetPostAsync("id123");
+            var actual = await subject.GetPostAsync("id123");
 
-            mockHttp.VerifyNoOutstandingExpectation();
-        }
-        
-        private MockHttpMessageHandler CreateMockHttp(string expectedEndpoint)
-        {
-            var mockHttp = new MockHttpMessageHandler(); 
-            mockHttp.Expect(
-                    HttpMethod.Get,
-                    expectedEndpoint)
-                .WithHeaders("X-API-KEY", ApiKey)
-                .Respond("application/json", "{}");
-
-            return mockHttp;
-        }
-
-        private IHttpClientFactory CreateHttpClientFactory(MockHttpMessageHandler mockHttp)
-        {
-            return Mock.Of<IHttpClientFactory>(m =>
-                m.CreateClient(It.IsAny<string>()) == mockHttp.ToHttpClient());
-        }
-        
-        private IOptions<MicroCmsOptions> CreateOptions()
-        {
-            return Mock.Of<IOptions<MicroCmsOptions>>(m =>
-                m.Value == new MicroCmsOptions
-                {
-                    ApiKey = ApiKey,
-                    Endpoint = "https://example.com/test"
-                });
+            var expected = TestData.BlogPost;
+            Assert.Equal(expected, actual);
         }
     }
 }

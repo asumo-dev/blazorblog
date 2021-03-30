@@ -9,7 +9,7 @@ namespace BlazorBlog.MicroCms
         public ICollection<T> Contents { get; set; } = default!;
 
         [JsonPropertyName(("totalCount"))]
-        public int TotalCount { get; set; } = default;
+        public int TotalCount { get; set; }
         
         [JsonPropertyName(("offset"))]
         public int Offset { get; set; }

@@ -1,8 +1,6 @@
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using System.Net.Http;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
 
@@ -10,14 +8,11 @@ namespace BlazorBlog.MicroCms
 {
     public class MicroCmsBlogRepository : IBlogRepository
     {
-        private readonly MicroCmsClient _client;
+        private readonly IMicroCmsClient _client;
 
-        public MicroCmsBlogRepository(IOptions<MicroCmsOptions> options, IHttpClientFactory factory)
+        public MicroCmsBlogRepository(IMicroCmsClient client)
         {
-            _client = new MicroCmsClient(
-                options.Value.Endpoint,
-                options.Value.ApiKey,
-                factory.CreateClient());
+            _client = client;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
