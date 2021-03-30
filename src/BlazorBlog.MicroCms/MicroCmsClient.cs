@@ -1,8 +1,6 @@
-using System.Collections.Specialized;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.MicroCms
 {
@@ -21,17 +19,19 @@ namespace BlazorBlog.MicroCms
             _endpoint = endpoint;
         }
 
-        public Task<T?> GetAsync<T>(NameValueCollection? queryParams)
-            => GetAsyncCore<T>(_endpoint, queryParams);
+        public Task<MicroCmsCollection<TContent>?> GetContentsAsync<TContent>(
+            MicroCmsQueryBuilder<TContent> queryBuilder)
+            => GetAsyncCore<MicroCmsCollection<TContent>>(CreateEndpoint(queryBuilder));
 
-        public Task<T?> GetAsync<T>(string id, NameValueCollection? queryParams)
-        {
-            return GetAsyncCore<T>(EndpointBuilder.Build(_endpoint, id), queryParams);
-        }
+        public Task<TContent?> GetContentAsync<TContent>(
+            MicroCmsQueryBuilder<TContent> queryBuilder)
+            => GetAsyncCore<TContent>(CreateEndpoint(queryBuilder));
 
-        private async Task<T?> GetAsyncCore<T>(string endpoint, NameValueCollection? queryParams)
+        private string CreateEndpoint<T>(MicroCmsQueryBuilder<T> queryBuilder)
+            => $"{_endpoint.TrimEnd('/')}/{queryBuilder.Build()}";
+
+        private async Task<T?> GetAsyncCore<T>(string endpoint)
         {
-            endpoint = EndpointBuilder.Build(endpoint, queryParams: queryParams);
             var response = await _httpClient.GetAsync(endpoint);
             
             return await response.Content.ReadFromJsonAsync<T>();

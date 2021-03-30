@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using Moq;
@@ -19,7 +18,7 @@ namespace BlazorBlog.MicroCms.Tests
                 TotalCount = 16
             });
             var client = Mock.Of<IMicroCmsClient>(m =>
-                m.GetAsync<MicroCmsCollection<BlogPostEntity>>(It.IsAny<NameValueCollection>())
+                m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
                 == getAsyncReturn);
 
             var subject = new MicroCmsBlogRepository(client);
@@ -46,7 +45,7 @@ namespace BlazorBlog.MicroCms.Tests
         {
             var getAsyncReturn = Task.FromResult(TestData.BlogPostEntity);
             var client = Mock.Of<IMicroCmsClient>(m =>
-                m.GetAsync<BlogPostEntity>("id123", It.IsAny<NameValueCollection>())
+                m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
                 == getAsyncReturn);
 
             var subject = new MicroCmsBlogRepository(client);

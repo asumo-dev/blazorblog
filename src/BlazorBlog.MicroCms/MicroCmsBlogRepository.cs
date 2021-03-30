@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
@@ -17,14 +16,11 @@ namespace BlazorBlog.MicroCms
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
         {
-            var entries = await _client.GetAsync<MicroCmsCollection<BlogPostEntity>>(
-                new NameValueCollection
-                {
-                    {"fields", "title,id,body,publishedAt"},
-                    {"limit", postsPerPage.ToString()},
-                    {"offset", (postsPerPage * page).ToString()},
-                    {"orders", "-publishedAt"}
-                });
+            var builder = new MicroCmsQueryBuilder<BlogPostEntity>()
+                .Limit(postsPerPage)
+                .Offset(postsPerPage * page)
+                .OrderByDescending(m => m.PublishedAt);
+            var entries = await _client.GetContentsAsync(builder);
 
             if (entries == null)
             {
@@ -42,10 +38,9 @@ namespace BlazorBlog.MicroCms
 
         public async Task<BlogPost?> GetPostAsync(string slug)
         {
-            var entity = await _client.GetAsync<BlogPostEntity>(slug, new NameValueCollection
-            {
-                {"fields", "title,id,body,publishedAt"}
-            });
+            var builder = new MicroCmsQueryBuilder<BlogPostEntity>()
+                .ContentIdIs(slug);
+            var entity = await _client.GetContentAsync(builder);
 
             return entity?.ToBlogPost();
         }
