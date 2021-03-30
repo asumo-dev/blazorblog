@@ -5,7 +5,7 @@ namespace BlazorBlog.Ghost.Tests
 {
     public static class TestData
     {
-        public static readonly PostsResponse.PostContent PostContent = new()
+        public static readonly PostContent PostContent = new()
         {
             Title = "Start here for a quick overview of everything you need to know",
             Slug = "welcome",
@@ -13,12 +13,12 @@ namespace BlazorBlog.Ghost.Tests
             PublishedAt = new DateTimeOffset(2021, 3, 24, 15, 38, 18, TimeSpan.Zero).LocalDateTime
         };
 
-        public static readonly PostsResponse PostsResponse = new()
+        public static readonly PostsResponse<PostContent> PostsResponse = new()
         {
             Posts = new[] {PostContent},
-            Meta = new PostsResponse.MetaContent
+            Meta = new PostsResponse<PostContent>.MetaContent
             {
-                Pagination = new PostsResponse.MetaContent.PaginationContent()
+                Pagination = new PostsResponse<PostContent>.MetaContent.PaginationContent()
                 {
                     Limit = 1,
                     Next = 4,

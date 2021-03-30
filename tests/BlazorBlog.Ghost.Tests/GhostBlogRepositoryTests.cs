@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Specialized;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
+using BlazorBlog.Tests.Common;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -14,8 +16,20 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPagedPostsAsync_ReturnsCorrectly()
         {
             var getPostsAsyncReturn = Task.FromResult(TestData.PostsResponse);
+
+            Expression<Func<GhostQueryBuilder<PostContent>, bool>> expectedQuery = b =>
+                b.Build()
+                    .AsQueryString()
+                    .Contains(new NameValueCollection
+                    {
+                        {"fields", "title,slug,html,published_at"},
+                        {"limit", "5"},
+                        {"page", "3"},
+                        {"order", "published_at DESC"},
+                    });
+
             var client = Mock.Of<IGhostClient>(m =>
-                m.GetPostsAsync(null, It.IsAny<NameValueCollection>()) == getPostsAsyncReturn);
+                m.GetPostsAsync(It.Is(expectedQuery)) == getPostsAsyncReturn);
 
             var subject = CreateRepository(client);
 
@@ -40,7 +54,7 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenHttpClientThrowsException()
         {
             var mockClient = new Mock<IGhostClient>();
-            mockClient.Setup(m => m.GetPostsAsync(null, It.IsAny<NameValueCollection>()))
+            mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))
                 .ThrowsAsync(new InvalidOperationException());
 
             var subject = CreateRepository(mockClient.Object);
@@ -58,8 +72,17 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostAsync_ReturnsCorrectly()
         {
             var getPostsAsyncReturn = Task.FromResult(TestData.PostsResponse);
+
+            Expression<Func<GhostQueryBuilder<PostContent>, bool>> expectedQuery = b =>
+                b.Build().StartsWith("slug/welcome") &&
+                b.Build().AsQueryString()
+                    .Contains(new NameValueCollection
+                    {
+                        {"fields", "title,slug,html,published_at"},
+                    });
+
             var client = Mock.Of<IGhostClient>(m =>
-                m.GetPostsAsync("welcome", It.IsAny<NameValueCollection>()) == getPostsAsyncReturn);
+                m.GetPostsAsync(It.Is(expectedQuery)) == getPostsAsyncReturn);
 
             var subject = CreateRepository(client);
 
@@ -74,7 +97,7 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
         {
             var mockClient = new Mock<IGhostClient>();
-            mockClient.Setup(m => m.GetPostsAsync("slug", It.IsAny<NameValueCollection>()))
+            mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))
                 .ThrowsAsync(new InvalidOperationException());
 
             var subject = CreateRepository(mockClient.Object);

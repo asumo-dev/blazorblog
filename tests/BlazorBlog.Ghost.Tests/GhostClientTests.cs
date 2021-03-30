@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Specialized;
 using System.Net.Http;
 using System.Threading.Tasks;
 using RichardSzalay.MockHttp;
@@ -11,14 +10,17 @@ namespace BlazorBlog.Ghost.Tests
     {
         private const string ApiUrl = "https://example.com";
         private const string ContentApiKey = "content_api_key";
-            
+        private const string PostsEndpoint = "https://example.com/ghost/api/v3/content/posts/";
+
         [Fact]
         public async Task GetPostsAsync_WithSlug_RequestsToCorrectEndpoint()
         {
-            var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts/slug/welcome?key=content_api_key", "{}");
+            var mockHttp = CreateMockHttp($"{PostsEndpoint}slug/welcome?fields=title%2cslug%2chtml%2cpublished_at&key=content_api_key", "{}");
             var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
+            var queryBuilder = new GhostQueryBuilder<PostContent>()
+                .Slug("welcome");
 
-            await ghostClient.GetPostsAsync("welcome");
+            await ghostClient.GetPostsAsync(queryBuilder);
 
             mockHttp.VerifyNoOutstandingExpectation();
         }
@@ -27,15 +29,14 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostsAsync_WithParams_RequestsToCorrectEndpoint()
         {
             var mockHttp = CreateMockHttp(
-                "https://example.com/ghost/api/v3/content/posts?page=1&limit=5&key=content_api_key",
+                $"{PostsEndpoint}?fields=title%2cslug%2chtml%2cpublished_at&page=1&limit=5&key=content_api_key",
                 "{}");
             var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
+            var queryBuilder = new GhostQueryBuilder<PostContent>()
+                .Page(1)
+                .Limit(5);
 
-            await ghostClient.GetPostsAsync(@params: new NameValueCollection
-            {
-                {"page", "1"},
-                {"limit", "5"}
-            });
+            await ghostClient.GetPostsAsync(queryBuilder);
 
             mockHttp.VerifyNoOutstandingExpectation();
         }
@@ -44,12 +45,14 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostsAsync_ReturnsCorrectly()
         {
             var actualGhostResponse = TestData.GhostResponseJson;
-            var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", actualGhostResponse);
-            
+            var mockHttp = CreateMockHttp(
+                $"{PostsEndpoint}?fields=title%2cslug%2chtml%2cpublished_at&key=content_api_key", actualGhostResponse);
+
             var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
+            var queryBuilder = new GhostQueryBuilder<PostContent>();
 
             // Act
-            var actual = await ghostClient.GetPostsAsync();
+            var actual = await ghostClient.GetPostsAsync(queryBuilder);
 
             var expected = TestData.PostsResponse;
 
@@ -61,13 +64,16 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostsAsync_ThrowsException_WhenApiReturnsInvalidData()
         {
             var invalidResponse = "123";
-            var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", invalidResponse);
+            var mockHttp = CreateMockHttp($"{PostsEndpoint}?fields=title%2cslug%2chtml%2cpublished_at&key=content_api_key", invalidResponse);
             var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
+            var queryBuilder = new GhostQueryBuilder<PostContent>();
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                await ghostClient.GetPostsAsync();
+                await ghostClient.GetPostsAsync(queryBuilder);
             });
+
+            mockHttp.VerifyNoOutstandingExpectation();
         }
         
         private MockHttpMessageHandler CreateMockHttp(string expectedEndpoint, string responseContent)

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
@@ -21,12 +20,15 @@ namespace BlazorBlog.Ghost
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
         {
-            PostsResponse? postsResponses;
+            PostsResponse<PostContent>? postsResponses;
             
             try
             {
-                var @params = CreatePagedPostsParams(page, postsPerPage);
-                postsResponses = await _client.GetPostsAsync(@params: @params);
+                var queryBuilder = new GhostQueryBuilder<PostContent>()
+                    .Limit(postsPerPage)
+                    .Page(page + 1)
+                    .OrderByDescending(m => m.PublishedAt);
+                postsResponses = await _client.GetPostsAsync(queryBuilder);
             }
             catch (Exception e)
             {
@@ -39,17 +41,18 @@ namespace BlazorBlog.Ghost
                 return PagedPostCollection.Empty(postsPerPage);
             }
 
-            return postsResponses.ToPagedPostCollection();
+            return Utils.ToPagedPostCollection(postsResponses);
         }
 
         public async Task<BlogPost?> GetPostAsync(string slug)
         {
-            PostsResponse? postsResponses;
+            PostsResponse<PostContent>? postsResponses;
             
             try
             {
-                var @params = CreatePostParams();
-                postsResponses = await _client.GetPostsAsync(slug, @params);
+                var queryBuilder = new GhostQueryBuilder<PostContent>()
+                    .Slug(slug);
+                postsResponses = await _client.GetPostsAsync(queryBuilder);
             }
             catch (Exception e)
             {
@@ -58,24 +61,6 @@ namespace BlazorBlog.Ghost
             }
 
             return postsResponses?.Posts?.FirstOrDefault()?.ToBlogPost();
-        }
-
-        private static NameValueCollection CreatePagedPostsParams(int page, int postsPerPage)
-        {
-            return new(CreatePostParams())
-            {
-                {"limit", postsPerPage.ToString()},
-                {"page", (page + 1).ToString()},
-                {"order", "published_at DESC"}
-            };
-        }
-
-        private static NameValueCollection CreatePostParams()
-        {
-            return new()
-            {
-                {"fields", "title,slug,html,published_at"}
-            };
         }
     }
 }

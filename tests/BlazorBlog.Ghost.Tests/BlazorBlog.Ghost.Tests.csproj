@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\BlazorBlog.Ghost\BlazorBlog.Ghost.csproj" />
+      <ProjectReference Include="..\BlazorBlog.Tests.Common\BlazorBlog.Tests.Common.csproj" />
     </ItemGroup>
 
 </Project>

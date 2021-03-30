@@ -10,7 +10,9 @@ namespace BlazorBlog.Tests.Common
 
         public QueryString(string str)
         {
-            _params = HttpUtility.ParseQueryString(str);
+            var index = str.IndexOf('?');
+            _params = HttpUtility.ParseQueryString(
+                index > 0 ? str.Substring(index) : str);
         }
 
         public bool Contains(NameValueCollection pairs)
