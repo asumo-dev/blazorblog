@@ -1,73 +1,104 @@
-using System.Net.Http;
-using Microsoft.Extensions.Options;
+using System;
+using System.Threading.Tasks;
+using BlazorBlog.Core.Models;
+using Microsoft.Extensions.Logging;
 using Moq;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace BlazorBlog.MicroCms.Tests
 {
     public class MicroCmsBlogRepositoryTests
     {
-        private const string ApiKey = "API_KEY";
-        
         [Fact]
-        public void GetPagedPostsAsync_RequestCorrectly()
+        public async Task GetPagedPostsAsync_ReturnsCorrectly()
         {
-            var mockHttp = CreateMockHttp(
-                "https://example.com/test?fields=title,id,body,publishedAt&limit=5&offset=15&orders=-publishedAt");
-            var httpClientFactory = CreateHttpClientFactory(mockHttp);
-            var options = CreateOptions();
-            
-            var repository = new MicroCmsBlogRepository(options, httpClientFactory);
+            var getAsyncReturn = Task.FromResult(new MicroCmsCollection<BlogPostEntity>
+            {
+                Contents = new [] {TestData.BlogPostEntity},
+                Limit = 5,
+                Offset = 15,
+                TotalCount = 16
+            });
+            var client = Mock.Of<IMicroCmsClient>(m =>
+                m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
+                == getAsyncReturn);
+
+            var subject = CreateMicroCmsBlogRepository(client);
 
             // Act
-            repository.GetPagedPostsAsync(3, 5);
+            var actual = await subject.GetPagedPostsAsync(3, 5);
 
-            mockHttp.VerifyNoOutstandingExpectation();
+            var expected = new PagedPostCollection
+            {
+                CurrentPage = 3,
+                PostsPerPage = 5,
+                TotalPosts = 16,
+                Posts = new[] { TestData.BlogPost }
+            };
+
+            Assert.Equal(expected.CurrentPage, actual.CurrentPage);
+            Assert.Equal(expected.TotalPosts, actual.TotalPosts);
+            Assert.Equal(expected.PostsPerPage, actual.PostsPerPage);
+            Assert.Equal(expected.Posts, actual.Posts);
         }
-        
-        [Fact]
-        public void GetPostsAsync_RequestCorrectly()
-        {
-            var mockHttp = CreateMockHttp(
-                "https://example.com/test/id123?fields=title,id,body,publishedAt");
-            var httpClientFactory = CreateHttpClientFactory(mockHttp);
-            var options = CreateOptions();
 
-            var repository = new MicroCmsBlogRepository(options, httpClientFactory);
+        [Fact]
+        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenMicroCmsClientThrowsException()
+        {
+            var mockClient = new Mock<IMicroCmsClient>();
+            mockClient.Setup(m => m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
+                .ThrowsAsync(new InvalidOperationException()).Verifiable();
+
+            var subject = CreateMicroCmsBlogRepository(mockClient.Object);
 
             // Act
-            repository.GetPostAsync("id123");
+            var actual = await subject.GetPagedPostsAsync(1, 5);
 
-            mockHttp.VerifyNoOutstandingExpectation();
-        }
-        
-        private MockHttpMessageHandler CreateMockHttp(string expectedEndpoint)
-        {
-            var mockHttp = new MockHttpMessageHandler(); 
-            mockHttp.Expect(
-                    HttpMethod.Get,
-                    expectedEndpoint)
-                .WithHeaders("X-API-KEY", ApiKey)
-                .Respond("application/json", "{}");
-
-            return mockHttp;
+            Assert.Equal(0, actual.CurrentPage);
+            Assert.Equal(0, actual.TotalPosts);
+            Assert.Equal(5, actual.PostsPerPage);
+            Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+            mockClient.Verify();
         }
 
-        private IHttpClientFactory CreateHttpClientFactory(MockHttpMessageHandler mockHttp)
+        [Fact]
+        public async Task GetPostsAsync_ReturnsCorrectly()
         {
-            return Mock.Of<IHttpClientFactory>(m =>
-                m.CreateClient(It.IsAny<string>()) == mockHttp.ToHttpClient());
+            var getAsyncReturn = Task.FromResult(TestData.BlogPostEntity);
+            var client = Mock.Of<IMicroCmsClient>(m =>
+                m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>())
+                == getAsyncReturn);
+
+            var subject = CreateMicroCmsBlogRepository(client);
+
+            // Act
+            var actual = await subject.GetPostAsync("id123");
+
+            var expected = TestData.BlogPost;
+            Assert.Equal(expected, actual);
         }
-        
-        private IOptions<MicroCmsOptions> CreateOptions()
+
+        [Fact]
+        public async Task GetPostAsync_ReturnsNull_WhenMicroCmsClientThrowsException()
         {
-            return Mock.Of<IOptions<MicroCmsOptions>>(m =>
-                m.Value == new MicroCmsOptions
-                {
-                    ApiKey = ApiKey,
-                    Endpoint = "https://example.com/test"
-                });
+            var mockClient = new Mock<IMicroCmsClient>();
+            mockClient.Setup(m => m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
+
+            var subject = CreateMicroCmsBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPostAsync("slug");
+
+            Assert.Null(actual);
+            mockClient.Verify();
+        }
+
+        private MicroCmsBlogRepository CreateMicroCmsBlogRepository(IMicroCmsClient client)
+        {
+            var logger = Mock.Of<ILogger<MicroCmsBlogRepository>>();
+            return new MicroCmsBlogRepository(client, logger);
         }
     }
 }

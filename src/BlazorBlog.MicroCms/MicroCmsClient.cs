@@ -1,34 +1,37 @@
-using System.Collections.Specialized;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.MicroCms
 {
-    public class MicroCmsClient
+    public class MicroCmsClient : IMicroCmsClient
     {
         private readonly HttpClient _httpClient;
         private readonly string _endpoint;
 
-        public MicroCmsClient(string endpoint, string apiKey, HttpClient httpClient)
+        public MicroCmsClient(HttpClient httpClient, MicroCmsOptions options)
+            : this(httpClient, options.Endpoint, options.ApiKey){}
+
+        public MicroCmsClient(HttpClient httpClient, string endpoint, string apiKey)
         {
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
             _endpoint = endpoint;
         }
-        
-        public Task<T?> GetAsync<T>(NameValueCollection? queryParams)
-            => GetAsyncCore<T>(_endpoint, queryParams);
 
-        public Task<T?> GetAsync<T>(string id, NameValueCollection? queryParams)
-        {
-            return GetAsyncCore<T>(EndpointBuilder.Build(_endpoint, id), queryParams);
-        }
+        public Task<MicroCmsCollection<TContent>?> GetContentsAsync<TContent>(
+            MicroCmsQueryBuilder<TContent> queryBuilder)
+            => GetAsyncCore<MicroCmsCollection<TContent>>(CreateEndpoint(queryBuilder));
 
-        private async Task<T?> GetAsyncCore<T>(string endpoint, NameValueCollection? queryParams)
+        public Task<TContent?> GetContentAsync<TContent>(
+            MicroCmsQueryBuilder<TContent> queryBuilder)
+            => GetAsyncCore<TContent>(CreateEndpoint(queryBuilder));
+
+        private string CreateEndpoint<T>(MicroCmsQueryBuilder<T> queryBuilder)
+            => $"{_endpoint.TrimEnd('/')}/{queryBuilder.Build()}";
+
+        private async Task<T?> GetAsyncCore<T>(string endpoint)
         {
-            endpoint = EndpointBuilder.Build(endpoint, queryParams: queryParams);
             var response = await _httpClient.GetAsync(endpoint);
             
             return await response.Content.ReadFromJsonAsync<T>();

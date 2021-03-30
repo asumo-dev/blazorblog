@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
@@ -14,20 +12,20 @@ namespace BlazorBlog.Strapi
     public class StrapiBlogRepository : IBlogRepository
     {
         private readonly ILogger<StrapiBlogRepository> _logger;
-        private readonly StrapiClient _strapiClient;
+        private readonly IStrapiClient _client;
         private readonly string _baseUrl;
 
         public StrapiBlogRepository(
+            IStrapiClient client,
             IOptions<StrapiOptions> options,
-            IHttpClientFactory httpClientFactory,
             ILogger<StrapiBlogRepository> logger)
         {
             options.Value.ThrowsIfInvalid();
-            
+
             _logger = logger;
             _baseUrl = options.Value.BaseUrl;
 
-            _strapiClient = new StrapiClient(options.Value.BaseEndpoint, httpClientFactory.CreateClient());
+            _client = client;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
@@ -37,14 +35,13 @@ namespace BlazorBlog.Strapi
             
             try
             {
-                postContents = await _strapiClient.GetAsync(@params: new NameValueCollection
-                {
-                    {"_start", (postsPerPage * page).ToString()},
-                    {"_limit", postsPerPage.ToString()},
-                    { "_sort", "published_at:DESC"}
-                });
+                var queryBuilder = new StrapiQueryBuilder<PostContent>()
+                    .Start(postsPerPage * page)
+                    .Limit(postsPerPage)
+                    .OrderByDescending(m => m.PublishedAt);
+                postContents = await _client.GetAsync(queryBuilder);
 
-                count = await _strapiClient.CountAsync();
+                count = await _client.CountAsync();
             }
             catch (Exception e)
             {
@@ -72,11 +69,10 @@ namespace BlazorBlog.Strapi
             
             try
             {
-                postContents = await _strapiClient.GetAsync(@params: new NameValueCollection
-                {
-                    {"slug_eq", slug},
-                    {"_limit", "1"}
-                });
+                var queryBuilder = new StrapiQueryBuilder<PostContent>()
+                    .Eq(m =>  m.Slug, slug)
+                    .Limit(1);
+                postContents = await _client.GetAsync(queryBuilder);
             }
             catch (Exception e)
             {

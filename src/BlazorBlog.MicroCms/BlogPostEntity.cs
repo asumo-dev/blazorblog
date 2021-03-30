@@ -6,16 +6,16 @@ namespace BlazorBlog.MicroCms
 {
     public class BlogPostEntity
     {
-        [JsonPropertyName(("id"))]
+        [JsonPropertyName("id")]
         public string? Id { get; set; }
         
-        [JsonPropertyName(("title"))]
+        [JsonPropertyName("title")]
         public string? Title { get; set; }
         
-        [JsonPropertyName(("body"))]
+        [JsonPropertyName("body")]
         public string? BodyHtml { get; set; }
 
-        [JsonPropertyName(("publishedAt"))]
+        [JsonPropertyName("publishedAt")]
         public DateTime? PublishedAt { get; set; }
         
         public BlogPost ToBlogPost()

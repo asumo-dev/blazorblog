@@ -1,35 +1,41 @@
-using System.Collections.Specialized;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using System.Net.Http;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace BlazorBlog.MicroCms
 {
     public class MicroCmsBlogRepository : IBlogRepository
     {
-        private readonly MicroCmsClient _client;
+        private readonly IMicroCmsClient _client;
+        private readonly ILogger<MicroCmsBlogRepository> _logger;
 
-        public MicroCmsBlogRepository(IOptions<MicroCmsOptions> options, IHttpClientFactory factory)
+        public MicroCmsBlogRepository(IMicroCmsClient client, ILogger<MicroCmsBlogRepository> logger)
         {
-            _client = new MicroCmsClient(
-                options.Value.Endpoint,
-                options.Value.ApiKey,
-                factory.CreateClient());
+            _client = client;
+            _logger = logger;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
         {
-            var entries = await _client.GetAsync<MicroCmsCollection<BlogPostEntity>>(
-                new NameValueCollection
-                {
-                    {"fields", "title,id,body,publishedAt"},
-                    {"limit", postsPerPage.ToString()},
-                    {"offset", (postsPerPage * page).ToString()},
-                    {"orders", "-publishedAt"}
-                });
+            var builder = new MicroCmsQueryBuilder<BlogPostEntity>()
+                .Limit(postsPerPage)
+                .Offset(postsPerPage * page)
+                .OrderByDescending(m => m.PublishedAt);
+
+            MicroCmsCollection<BlogPostEntity>? entries;
+
+            try
+            {
+                entries = await _client.GetContentsAsync(builder);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from microCMS");
+                return PagedPostCollection.Empty(postsPerPage);
+            }
 
             if (entries == null)
             {
@@ -47,12 +53,21 @@ namespace BlazorBlog.MicroCms
 
         public async Task<BlogPost?> GetPostAsync(string slug)
         {
-            var entity = await _client.GetAsync<BlogPostEntity>(slug, new NameValueCollection
-            {
-                {"fields", "title,id,body,publishedAt"}
-            });
+            var builder = new MicroCmsQueryBuilder<BlogPostEntity>()
+                .ContentIdIs(slug);
 
-            return entity?.ToBlogPost();
+            try
+            {
+                var entity = await _client.GetContentAsync(builder);
+
+                return entity?.ToBlogPost();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from microCMS");
+
+                return null;
+            }
         }
     }
 }

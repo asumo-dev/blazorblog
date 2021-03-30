@@ -1,26 +1,26 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
 using Contentful.Core;
-using Contentful.Core.Configuration;
+using Contentful.Core.Errors;
+using Contentful.Core.Models;
 using Contentful.Core.Search;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace BlazorBlog.Contentful
 {
-    public class ContentfulBlogRepository : IBlogRepository, IDisposable
+    public class ContentfulBlogRepository : IBlogRepository
     {
-        private readonly HttpClient _httpClient;
-        private readonly ContentfulClient _client;
+        private readonly IContentfulClient _client;
+        private readonly ILogger<ContentfulBlogRepository> _logger;
 
-        public ContentfulBlogRepository(IOptions<ContentfulOptions> options)
+        public ContentfulBlogRepository(
+            IContentfulClient contentfulClient, ILogger<ContentfulBlogRepository> logger)
         {
-            _httpClient = new HttpClient();
-            _client = new ContentfulClient(_httpClient, options.Value);
+            _client = contentfulClient;
+            _logger = logger;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
@@ -29,8 +29,19 @@ namespace BlazorBlog.Contentful
                 .ContentTypeIs("blogPost")
                 .Skip(postsPerPage * page)
                 .Limit(postsPerPage);
-            var entries = await _client.GetEntries(builder);
-            
+
+            ContentfulCollection<BlogPostEntry>? entries;
+
+            try
+            {
+                entries = await _client.GetEntries(builder);
+            }
+            catch (ContentfulException e)
+            {
+                _logger.LogError(e, "Failed to fetch from Contentful");
+                return PagedPostCollection.Empty(postsPerPage);
+            }
+
             var list = new List<BlogPost>();
             foreach (var entry in entries.Items)
             {
@@ -52,17 +63,23 @@ namespace BlazorBlog.Contentful
                 .ContentTypeIs("blogPost")
                 .FieldMatches(m => m.Slug, slug)
                 .Limit(1);
-            var entry = await _client.GetEntries(builder);
-            
-            var post = entry.Items.FirstOrDefault();
+
+            ContentfulCollection<BlogPostEntry>? entries;
+
+            try
+            {
+                entries = await _client.GetEntries(builder);
+            }
+            catch (ContentfulException e)
+            {
+                _logger.LogError(e, "Failed to fetch from Contentful");
+                return null;
+            }
+
+            var post = entries.Items.FirstOrDefault();
             if (post == null) return null;
             
             return await post.ToBlogPostAsync();
-        }
-
-        public void Dispose()
-        {
-            _httpClient.Dispose();
         }
     }
 }
