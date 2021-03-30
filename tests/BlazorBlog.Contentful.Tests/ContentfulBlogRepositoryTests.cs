@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Tests.Common;
 using Contentful.Core;
+using Contentful.Core.Errors;
 using Contentful.Core.Models;
 using Contentful.Core.Search;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -39,7 +41,8 @@ namespace BlazorBlog.Contentful.Tests
             var client = Mock.Of<IContentfulClient>(m =>
                 m.GetEntries(It.Is(expectedQueryBuilder), It.IsAny<CancellationToken>())
                 == getEntriesReturnedValue);
-            var subject = new ContentfulBlogRepository(client);
+
+            var subject = CreateContentfulBlogRepository(client);
 
             // Act
             var actual = await subject.GetPagedPostsAsync(2, 5);
@@ -58,6 +61,25 @@ namespace BlazorBlog.Contentful.Tests
             Assert.Equal(expected.Posts, actual.Posts);
         }
 
+        [Fact]
+        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenContentfulClientThrowsException()
+        {
+            var mockClient = new Mock<IContentfulClient>();
+            mockClient.Setup(m => m.GetEntries(
+                    It.IsAny<QueryBuilder<BlogPostEntry>>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ContentfulException(0, "error"));
+
+            var subject = CreateContentfulBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPagedPostsAsync(1, 5);
+
+            Assert.Equal(0, actual.CurrentPage);
+            Assert.Equal(0, actual.TotalPosts);
+            Assert.Equal(5, actual.PostsPerPage);
+            Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+        }
 
         [Fact]
         public async Task GetPostAsync_ReturnsCorrectly()
@@ -83,13 +105,37 @@ namespace BlazorBlog.Contentful.Tests
             var client = Mock.Of<IContentfulClient>(m =>
                 m.GetEntries(It.Is(expectedQueryBuilder), It.IsAny<CancellationToken>())
                 == getEntriesReturnedValue);
-            var subject = new ContentfulBlogRepository(client);
+
+            var subject = CreateContentfulBlogRepository(client);
 
             // Act
             var actual = await subject.GetPostAsync("welcome");
 
             var expected = TestData.BlogPost;
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
+        {
+            var mockClient = new Mock<IContentfulClient>();
+            mockClient.Setup(m => m.GetEntries(
+                    It.IsAny<QueryBuilder<BlogPostEntry>>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ContentfulException(0, "error"));
+
+            var subject = CreateContentfulBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPostAsync("slug");
+
+            Assert.Null(actual);
+        }
+
+        private static ContentfulBlogRepository CreateContentfulBlogRepository(IContentfulClient client)
+        {
+            var logger = Mock.Of<ILogger<ContentfulBlogRepository>>();
+            return new ContentfulBlogRepository(client, logger);
         }
     }
 }
