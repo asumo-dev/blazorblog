@@ -10,10 +10,18 @@ using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.Strapi
 {
-    public class StrapiClient
+    public class StrapiClient : IStrapiClient
     {
         private readonly string _baseEndpoint;
         private readonly HttpClient _httpClient;
+
+        public StrapiClient(HttpClient httpClient, StrapiOptions options)
+        {
+            options.ThrowsIfInvalid();
+
+            _baseEndpoint = options.BaseEndpoint;
+            _httpClient = httpClient;
+        }
 
         public StrapiClient(string baseEndpoint, HttpClient httpClient)
         {
