@@ -55,7 +55,8 @@ namespace BlazorBlog.Ghost.Tests
         {
             var mockClient = new Mock<IGhostClient>();
             mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))
-                .ThrowsAsync(new InvalidOperationException());
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
 
             var subject = CreateRepository(mockClient.Object);
 
@@ -66,6 +67,7 @@ namespace BlazorBlog.Ghost.Tests
             Assert.Equal(0, actual.TotalPosts);
             Assert.Equal(5, actual.PostsPerPage);
             Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+            mockClient.Verify();
         }
         
         [Fact]
@@ -98,7 +100,8 @@ namespace BlazorBlog.Ghost.Tests
         {
             var mockClient = new Mock<IGhostClient>();
             mockClient.Setup(m => m.GetPostsAsync(It.IsAny<GhostQueryBuilder<PostContent>>()))
-                .ThrowsAsync(new InvalidOperationException());
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
 
             var subject = CreateRepository(mockClient.Object);
 
@@ -106,6 +109,7 @@ namespace BlazorBlog.Ghost.Tests
             var actual = await subject.GetPostAsync("slug");
 
             Assert.Null(actual);
+            mockClient.Verify();
         }
         
         private GhostBlogRepository CreateRepository(IGhostClient client)

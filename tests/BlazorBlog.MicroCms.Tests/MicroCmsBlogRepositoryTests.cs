@@ -47,7 +47,7 @@ namespace BlazorBlog.MicroCms.Tests
         {
             var mockClient = new Mock<IMicroCmsClient>();
             mockClient.Setup(m => m.GetContentsAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
-                .ThrowsAsync(new InvalidOperationException());
+                .ThrowsAsync(new InvalidOperationException()).Verifiable();
 
             var subject = CreateMicroCmsBlogRepository(mockClient.Object);
 
@@ -58,6 +58,7 @@ namespace BlazorBlog.MicroCms.Tests
             Assert.Equal(0, actual.TotalPosts);
             Assert.Equal(5, actual.PostsPerPage);
             Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+            mockClient.Verify();
         }
 
         [Fact]
@@ -82,7 +83,8 @@ namespace BlazorBlog.MicroCms.Tests
         {
             var mockClient = new Mock<IMicroCmsClient>();
             mockClient.Setup(m => m.GetContentAsync(It.IsAny<MicroCmsQueryBuilder<BlogPostEntity>>()))
-                .ThrowsAsync(new InvalidOperationException());
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
 
             var subject = CreateMicroCmsBlogRepository(mockClient.Object);
 
@@ -90,6 +92,7 @@ namespace BlazorBlog.MicroCms.Tests
             var actual = await subject.GetPostAsync("slug");
 
             Assert.Null(actual);
+            mockClient.Verify();
         }
 
         private MicroCmsBlogRepository CreateMicroCmsBlogRepository(IMicroCmsClient client)

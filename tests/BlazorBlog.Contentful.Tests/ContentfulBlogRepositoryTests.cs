@@ -68,7 +68,8 @@ namespace BlazorBlog.Contentful.Tests
             mockClient.Setup(m => m.GetEntries(
                     It.IsAny<QueryBuilder<BlogPostEntry>>(),
                     It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new ContentfulException(0, "error"));
+                .ThrowsAsync(new ContentfulException(0, "error"))
+                .Verifiable();
 
             var subject = CreateContentfulBlogRepository(mockClient.Object);
 
@@ -79,6 +80,7 @@ namespace BlazorBlog.Contentful.Tests
             Assert.Equal(0, actual.TotalPosts);
             Assert.Equal(5, actual.PostsPerPage);
             Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+            mockClient.Verify();
         }
 
         [Fact]
@@ -122,7 +124,8 @@ namespace BlazorBlog.Contentful.Tests
             mockClient.Setup(m => m.GetEntries(
                     It.IsAny<QueryBuilder<BlogPostEntry>>(),
                     It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new ContentfulException(0, "error"));
+                .ThrowsAsync(new ContentfulException(0, "error"))
+                .Verifiable();
 
             var subject = CreateContentfulBlogRepository(mockClient.Object);
 
@@ -130,6 +133,7 @@ namespace BlazorBlog.Contentful.Tests
             var actual = await subject.GetPostAsync("slug");
 
             Assert.Null(actual);
+            mockClient.Verify();
         }
 
         private static ContentfulBlogRepository CreateContentfulBlogRepository(IContentfulClient client)
