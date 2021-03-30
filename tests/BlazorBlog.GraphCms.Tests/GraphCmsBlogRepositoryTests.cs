@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using GraphQL;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -39,6 +41,26 @@ namespace BlazorBlog.GraphCms.Tests
         }
 
         [Fact]
+        public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenGraphCmsClientThrowsException()
+        {
+            var mockClient = new Mock<IGraphCmsClient>();
+            mockClient.Setup(m => m.SendQueryAsync<PagedPostsResponse>(It.IsAny<string>(), It.IsAny<object>()))
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
+
+            var subject = CreateGraphCmsBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPagedPostsAsync(1, 5);
+
+            Assert.Equal(0, actual.CurrentPage);
+            Assert.Equal(0, actual.TotalPosts);
+            Assert.Equal(5, actual.PostsPerPage);
+            Assert.Equal(Array.Empty<BlogPost>(), actual.Posts);
+            mockClient.Verify();
+        }
+
+        [Fact]
         public async Task GetPostAsync_ReturnsCorrectly()
         {
             var sendQueryAsyncReturn = Task.FromResult(new GraphQLResponse<PostResponse>
@@ -60,9 +82,27 @@ namespace BlazorBlog.GraphCms.Tests
             Assert.Equal(TestData.BlogPost, actual);
         }
 
+        [Fact]
+        public async Task GetPostAsync_ReturnsNull_WhenStrapiClientThrowsException()
+        {
+            var mockClient = new Mock<IGraphCmsClient>();
+            mockClient.Setup(m => m.SendQueryAsync<PostResponse>(It.IsAny<string>(), It.IsAny<object>()))
+                .ThrowsAsync(new InvalidOperationException())
+                .Verifiable();
+
+            var subject = CreateGraphCmsBlogRepository(mockClient.Object);
+
+            // Act
+            var actual = await subject.GetPostAsync("slug");
+
+            Assert.Null(actual);
+            mockClient.Verify();
+        }
+
         private GraphCmsBlogRepository CreateGraphCmsBlogRepository(IGraphCmsClient client)
         {
-            return new(client);
+            var logger = Mock.Of<ILogger<GraphCmsBlogRepository>>();
+            return new(client, logger);
         }
     }
 }

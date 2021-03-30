@@ -10,6 +10,7 @@ namespace BlazorBlog.GraphCms
         public static IServiceCollection AddGraphCmsRepository(
             this IServiceCollection services, Action<GraphCmsOptions> configureOptions)
         {
+            services.AddLogging();
             services.Configure(configureOptions);
             services.AddSingleton<IBlogRepository, GraphCmsBlogRepository>();
 

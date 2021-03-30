@@ -1,12 +1,16 @@
+using System;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
+using GraphQL;
+using Microsoft.Extensions.Logging;
 
 namespace BlazorBlog.GraphCms
 {
     public class GraphCmsBlogRepository : IBlogRepository
     {
         private readonly IGraphCmsClient _client;
+        private readonly ILogger<GraphCmsBlogRepository> _logger;
 
         private const string PostQuery = @"
 query post($slug: String) {
@@ -44,18 +48,28 @@ query pagedPosts($skip: Int, $first: Int) {
 }
 ";
 
-        public GraphCmsBlogRepository(IGraphCmsClient client)
+        public GraphCmsBlogRepository(IGraphCmsClient client, ILogger<GraphCmsBlogRepository> logger)
         {
             _client = client;
+            _logger = logger;
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
         {
             var skip = postsPerPage * page;
             var first = postsPerPage;
-            var response = await _client.SendQueryAsync<PagedPostsResponse>(PagedPostsQuery, new {skip, first});
+            GraphQLResponse<PagedPostsResponse>? response = null;
 
-            if (response.Data.PostsConnection?.Edges == null ||
+            try
+            {
+                response = await _client.SendQueryAsync<PagedPostsResponse>(PagedPostsQuery, new {skip, first});
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from GraphCMS");
+            }
+
+            if (response?.Data.PostsConnection?.Edges == null ||
                 response.Data.PostsConnection.Aggregate?.Count == null)
             {
                 return PagedPostCollection.Empty(postsPerPage);
@@ -78,9 +92,17 @@ query pagedPosts($skip: Int, $first: Int) {
 
         public async Task<BlogPost?> GetPostAsync(string slug)
         {
-            var response = await _client.SendQueryAsync<PostResponse>(PostQuery, new {slug});
+            try
+            {
+                var response = await _client.SendQueryAsync<PostResponse>(PostQuery, new {slug});
 
-            return response.Data.Post?.ToBlogPost();
+                return response.Data.Post?.ToBlogPost();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to fetch from GraphCMS");
+                return null;
+            }
         }
 
         private BlogPost[]? ToBlogPosts(PagedPostsResponse.PostsConnectionContent.EdgeContent[] edges)
