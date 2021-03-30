@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Specialized;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Moq;
 using RichardSzalay.MockHttp;
 using Xunit;
 
@@ -10,44 +10,20 @@ namespace BlazorBlog.Strapi.Tests
     public class StrapiClientTests
     {
         private const string BaseEndpoint = "https://example.com/";
-            
-        [Fact]
-        public async Task GetAsync_WithId_RequestsToCorrectEndpoint()
-        {
-            var mockHttp = CreateMockHttp("https://example.com/1", "[{}]");
-            var strapiClient = new StrapiClient(BaseEndpoint, mockHttp.ToHttpClient());
 
-            await strapiClient.GetAsync("1");
-
-            mockHttp.VerifyNoOutstandingExpectation();
-        }
-        
-        [Fact]
-        public async Task GetAsync_WithParams_RequestsToCorrectEndpoint()
-        {
-            var mockHttp = CreateMockHttp("https://example.com/?slug_eq=slug&_start=10", "[{}]");
-            var strapiClient = new StrapiClient(BaseEndpoint, mockHttp.ToHttpClient());
-
-            await strapiClient.GetAsync(@params: new NameValueCollection
-            {
-                {"slug_eq", "slug"},
-                {"_start", "10"}
-            });
-
-            mockHttp.VerifyNoOutstandingExpectation();
-        }
-        
         [Fact]
         public async Task GetAsync_ReturnsCorrectly()
         {
             var actualStrapiResponse =
                 @"[{""id"":1,""title"":""Title"",""slug"":""slug"",""content"":""Hello\\n"",""published_at"":""2021-03-23T06:11:20.018Z"",""created_at"":""2021-03-23T06:11:10.154Z"",""updated_at"":""2021-03-23T06:11:20.035Z""}]";
-            var mockHttp = CreateMockHttp("https://example.com", actualStrapiResponse);
+            var mockHttp = CreateMockHttp("https://example.com?_start=1", actualStrapiResponse);
             
             var strapiClient = new StrapiClient(BaseEndpoint, mockHttp.ToHttpClient());
+            var queryBuilder = new StrapiQueryBuilder<PostContent>()
+                .Start(1);
 
             // Act
-            var postContents = await strapiClient.GetAsync();
+            var postContents = await strapiClient.GetAsync(queryBuilder);
 
             Assert.Equal(new[]
                 {
@@ -68,10 +44,11 @@ namespace BlazorBlog.Strapi.Tests
             var invalidResponse = "123";
             var mockHttp = CreateMockHttp("https://example.com", invalidResponse);
             var strapiClient = new StrapiClient(BaseEndpoint, mockHttp.ToHttpClient());
+            var queryBuilder = Mock.Of<StrapiQueryBuilder<PostContent>>();
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                await strapiClient.GetAsync();
+                await strapiClient.GetAsync(queryBuilder);
             });
         }
         

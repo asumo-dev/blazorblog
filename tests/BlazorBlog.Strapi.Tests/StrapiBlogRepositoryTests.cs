@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
+using BlazorBlog.Tests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -34,8 +36,18 @@ namespace BlazorBlog.Strapi.Tests
             var getAsyncReturn = Task.FromResult((IList<PostContent>)new [] {TestData.PostContent});
             var countAsyncReturn = Task.FromResult(1);
 
+            Expression<Func<StrapiQueryBuilder<PostContent>, bool>> expectedQuery = b =>
+                b.Build()
+                    .AsQueryString()
+                    .Contains(new NameValueCollection
+                    {
+                        {"_start", "10"},
+                        {"_limit", "5"},
+                        {"_sort", "published_at:DESC"},
+                    });
+
             var strapiClient = Mock.Of<IStrapiClient>(m =>
-                m.GetAsync(null, It.IsAny<NameValueCollection>()) == getAsyncReturn &&
+                m.GetAsync(It.Is(expectedQuery)) == getAsyncReturn &&
                 m.CountAsync() == countAsyncReturn);
 
             var subject = CreateRepository(strapiClient);
@@ -61,7 +73,7 @@ namespace BlazorBlog.Strapi.Tests
         public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenStrapiClientThrowsException()
         {
             var mockClient = new Mock<IStrapiClient>();
-            mockClient.Setup(m => m.GetAsync(null, It.IsAny<NameValueCollection>()))
+            mockClient.Setup(m => m.GetAsync(It.IsAny<StrapiQueryBuilder<PostContent>>()))
                 .ThrowsAsync(new InvalidOperationException())
                 .Verifiable();
 
@@ -83,14 +95,23 @@ namespace BlazorBlog.Strapi.Tests
             var getAsyncReturn = Task.FromResult((IList<PostContent>)new [] {TestData.PostContent});
             var countAsyncReturn = Task.FromResult(1);
 
+            Expression<Func<StrapiQueryBuilder<PostContent>, bool>> expectedQuery = b =>
+                b.Build()
+                    .AsQueryString()
+                    .Contains(new NameValueCollection
+                    {
+                        {"slug_eq", "welcome"},
+                        {"_limit", "1"}
+                    });
+
             var strapiClient = Mock.Of<IStrapiClient>(m =>
-                m.GetAsync(null, It.IsAny<NameValueCollection>()) == getAsyncReturn &&
+                m.GetAsync(It.Is(expectedQuery)) == getAsyncReturn &&
                 m.CountAsync() == countAsyncReturn);
 
             var subject = CreateRepository(strapiClient);
 
             // Act
-            var actual = await subject.GetPostAsync("slug");
+            var actual = await subject.GetPostAsync("welcome");
 
             Assert.Equal(TestData.BlogPost, actual);
         }
@@ -99,7 +120,7 @@ namespace BlazorBlog.Strapi.Tests
         public async Task GetPostAsync_ReturnsNull_WhenStrapiClientThrowsException()
         {
             var mockClient = new Mock<IStrapiClient>();
-            mockClient.Setup(m => m.GetAsync(null, It.IsAny<NameValueCollection>()))
+            mockClient.Setup(m => m.GetAsync(It.IsAny<StrapiQueryBuilder<PostContent>>()))
                 .ThrowsAsync(new InvalidOperationException())
                 .Verifiable();
 

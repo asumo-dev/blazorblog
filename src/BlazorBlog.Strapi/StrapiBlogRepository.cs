@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
@@ -36,12 +35,11 @@ namespace BlazorBlog.Strapi
             
             try
             {
-                postContents = await _client.GetAsync(@params: new NameValueCollection
-                {
-                    {"_start", (postsPerPage * page).ToString()},
-                    {"_limit", postsPerPage.ToString()},
-                    { "_sort", "published_at:DESC"}
-                });
+                var queryBuilder = new StrapiQueryBuilder<PostContent>()
+                    .Start(postsPerPage * page)
+                    .Limit(postsPerPage)
+                    .OrderByDescending(m => m.PublishedAt);
+                postContents = await _client.GetAsync(queryBuilder);
 
                 count = await _client.CountAsync();
             }
@@ -71,11 +69,10 @@ namespace BlazorBlog.Strapi
             
             try
             {
-                postContents = await _client.GetAsync(@params: new NameValueCollection
-                {
-                    {"slug_eq", slug},
-                    {"_limit", "1"}
-                });
+                var queryBuilder = new StrapiQueryBuilder<PostContent>()
+                    .Eq(m =>  m.Slug, slug)
+                    .Limit(1);
+                postContents = await _client.GetAsync(queryBuilder);
             }
             catch (Exception e)
             {

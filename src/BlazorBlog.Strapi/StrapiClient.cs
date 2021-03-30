@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -19,26 +18,26 @@ namespace BlazorBlog.Strapi
         {
             options.ThrowsIfInvalid();
 
-            _baseEndpoint = options.BaseEndpoint;
+            _baseEndpoint = options.BaseEndpoint.TrimEnd('/');
             _httpClient = httpClient;
         }
 
         public StrapiClient(string baseEndpoint, HttpClient httpClient)
         {
-            _baseEndpoint = baseEndpoint;
+            _baseEndpoint = baseEndpoint.TrimEnd('/');
             _httpClient = httpClient;
         }
 
-        public async Task<IList<PostContent>?> GetAsync(string? id = null, NameValueCollection? @params = null)
+        public async Task<IList<T>?> GetAsync<T>(StrapiQueryBuilder<T> queryBuilder)
         {
-            var endpoint = EndpointBuilder.Build(_baseEndpoint, id, @params);
+            var endpoint = _baseEndpoint + queryBuilder.Build();
             var response = await _httpClient.GetAsync(endpoint);
 
             CheckStatusCode(response.StatusCode);
 
             try
             {
-                return await response.Content.ReadFromJsonAsync<IList<PostContent>>();
+                return await response.Content.ReadFromJsonAsync<IList<T>>();
             }
             catch (JsonException e)
             {
