@@ -16,7 +16,7 @@ namespace BlazorBlog.Ghost.Tests
         public async Task GetPostsAsync_WithSlug_RequestsToCorrectEndpoint()
         {
             var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts/slug/welcome?key=content_api_key", "{}");
-            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
 
             await ghostClient.GetPostsAsync("welcome");
 
@@ -29,7 +29,7 @@ namespace BlazorBlog.Ghost.Tests
             var mockHttp = CreateMockHttp(
                 "https://example.com/ghost/api/v3/content/posts?page=1&limit=5&key=content_api_key",
                 "{}");
-            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
 
             await ghostClient.GetPostsAsync(@params: new NameValueCollection
             {
@@ -46,7 +46,7 @@ namespace BlazorBlog.Ghost.Tests
             var actualGhostResponse = TestData.GhostResponseJson;
             var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", actualGhostResponse);
             
-            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
 
             // Act
             var actual = await ghostClient.GetPostsAsync();
@@ -62,7 +62,7 @@ namespace BlazorBlog.Ghost.Tests
         {
             var invalidResponse = "123";
             var mockHttp = CreateMockHttp("https://example.com/ghost/api/v3/content/posts", invalidResponse);
-            var ghostClient = new GhostClient(ApiUrl, ContentApiKey, mockHttp.ToHttpClient());
+            var ghostClient = new GhostClient(mockHttp.ToHttpClient(), ApiUrl, ContentApiKey);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {

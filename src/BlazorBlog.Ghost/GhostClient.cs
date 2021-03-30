@@ -9,15 +9,24 @@ using BlazorBlog.Core.Helpers;
 
 namespace BlazorBlog.Ghost
 {
-    public class GhostClient
+    public class GhostClient : IGhostClient
     {
         private readonly string _postsEndpoint;
         private readonly string _contentApiKey;
         private readonly HttpClient _httpClient;
 
-        public GhostClient(string apiUrl, string contentApiKey, HttpClient httpClient)
+        public GhostClient(HttpClient httpClient, GhostOptions options)
         {
-            _postsEndpoint = $"{apiUrl.TrimEnd('/')}/ghost/api/v3/content/posts";
+            options.ThrowsIfInvalid();
+
+            _postsEndpoint = CreatePostsEndpoint(options.ApiUrl);
+            _contentApiKey = options.ContentApiKey;
+            _httpClient = httpClient;
+        }
+
+        public GhostClient(HttpClient httpClient, string apiUrl, string contentApiKey)
+        {
+            _postsEndpoint = CreatePostsEndpoint(apiUrl);
             _contentApiKey = contentApiKey;
             _httpClient = httpClient;
         }
@@ -42,6 +51,9 @@ namespace BlazorBlog.Ghost
                 throw new InvalidOperationException("The response body was unknown format", e);
             }
         }
+
+        private string CreatePostsEndpoint(string apiUrl)
+            => $"{apiUrl.TrimEnd('/')}/ghost/api/v3/content/posts";
 
         private NameValueCollection CloneParamsWithKey(NameValueCollection? @params)
         {

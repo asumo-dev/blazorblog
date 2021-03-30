@@ -1,33 +1,22 @@
 using System;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using BlazorBlog.Core.Services;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace BlazorBlog.Ghost
 {
     public class GhostBlogRepository  : IBlogRepository
     {
         private readonly ILogger<GhostBlogRepository> _logger;
-        private readonly GhostClient _ghostClient;
+        private readonly IGhostClient _client;
 
-        public GhostBlogRepository(
-            IOptions<GhostOptions> options,
-            IHttpClientFactory httpClientFactory,
-            ILogger<GhostBlogRepository> logger)
+        public GhostBlogRepository(IGhostClient client, ILogger<GhostBlogRepository> logger)
         {
-            options.Value.ThrowsIfInvalid();
-            
+            _client = client;
             _logger = logger;
-
-            _ghostClient = new GhostClient(
-                options.Value.ApiUrl,
-                options.Value.ContentApiKey,
-                 httpClientFactory.CreateClient());
         }
 
         public async Task<PagedPostCollection> GetPagedPostsAsync(int page, int postsPerPage)
@@ -37,7 +26,7 @@ namespace BlazorBlog.Ghost
             try
             {
                 var @params = CreatePagedPostsParams(page, postsPerPage);
-                postsResponses = await _ghostClient.GetPostsAsync(@params: @params);
+                postsResponses = await _client.GetPostsAsync(@params: @params);
             }
             catch (Exception e)
             {
@@ -60,7 +49,7 @@ namespace BlazorBlog.Ghost
             try
             {
                 var @params = CreatePostParams();
-                postsResponses = await _ghostClient.GetPostsAsync(slug, @params);
+                postsResponses = await _client.GetPostsAsync(slug, @params);
             }
             catch (Exception e)
             {

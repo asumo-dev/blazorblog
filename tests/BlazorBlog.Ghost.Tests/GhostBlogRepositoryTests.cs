@@ -1,31 +1,26 @@
 using System;
-using System.Net.Http;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 using BlazorBlog.Core.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
-using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace BlazorBlog.Ghost.Tests
 {
     public class GhostBlogRepositoryTests
     {
-        private const string ApiUrl = "https://example.com";
-        private const string ContentApiKey = "content_api_key";
-        private const string BaseEndpoint = ApiUrl + "/ghost/api/v3/content/posts";
-        
         [Fact]
         public async Task GetPagedPostsAsync_ReturnsCorrectly()
         {
-            var mockHttp = CreateMockHttp(
-                $"{BaseEndpoint}?fields=title,slug,html,published_at&limit=5&page=3&order=published_at%20DESC&key={ContentApiKey}",
-                TestData.GhostResponseJson);
-            var repository = CreateRepository(mockHttp);
+            var getPostsAsyncReturn = Task.FromResult(TestData.PostsResponse);
+            var client = Mock.Of<IGhostClient>(m =>
+                m.GetPostsAsync(null, It.IsAny<NameValueCollection>()) == getPostsAsyncReturn);
+
+            var subject = CreateRepository(client);
 
             // Act
-            var actual = await repository.GetPagedPostsAsync(2, 5);
+            var actual = await subject.GetPagedPostsAsync(2, 5);
 
             var expected = new PagedPostCollection
             {
@@ -44,15 +39,14 @@ namespace BlazorBlog.Ghost.Tests
         [Fact]
         public async Task GetPagedPostsAsync_ReturnsEmptyCollection_WhenHttpClientThrowsException()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp
-                .When(HttpMethod.Get, BaseEndpoint)
-                .Throw(new InvalidOperationException());
+            var mockClient = new Mock<IGhostClient>();
+            mockClient.Setup(m => m.GetPostsAsync(null, It.IsAny<NameValueCollection>()))
+                .ThrowsAsync(new InvalidOperationException());
 
-            var repository = CreateRepository(mockHttp);
+            var subject = CreateRepository(mockClient.Object);
 
             // Act
-            var actual = await repository.GetPagedPostsAsync(1, 5);
+            var actual = await subject.GetPagedPostsAsync(1, 5);
             
             Assert.Equal(0, actual.CurrentPage);
             Assert.Equal(0, actual.TotalPosts);
@@ -63,13 +57,14 @@ namespace BlazorBlog.Ghost.Tests
         [Fact]
         public async Task GetPostAsync_ReturnsCorrectly()
         {
-            var mockHttp = CreateMockHttp(
-                $"{BaseEndpoint}/slug/welcome?fields=title,slug,html,published_at&key={ContentApiKey}",
-                TestData.GhostResponseJson);
-            var repository = CreateRepository(mockHttp);
+            var getPostsAsyncReturn = Task.FromResult(TestData.PostsResponse);
+            var client = Mock.Of<IGhostClient>(m =>
+                m.GetPostsAsync("welcome", It.IsAny<NameValueCollection>()) == getPostsAsyncReturn);
+
+            var subject = CreateRepository(client);
 
             // Act
-            var actual = await repository.GetPostAsync("welcome");
+            var actual = await subject.GetPostAsync("welcome");
 
             var expected = TestData.BlogPost;
             Assert.Equal(expected, actual);
@@ -78,55 +73,23 @@ namespace BlazorBlog.Ghost.Tests
         [Fact]
         public async Task GetPostAsync_ReturnsNull_WhenHttpClientThrowsException()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp
-                .When(HttpMethod.Get, BaseEndpoint)
-                .Throw(new InvalidOperationException());
+            var mockClient = new Mock<IGhostClient>();
+            mockClient.Setup(m => m.GetPostsAsync("slug", It.IsAny<NameValueCollection>()))
+                .ThrowsAsync(new InvalidOperationException());
 
-            var repository = CreateRepository(mockHttp);
+            var subject = CreateRepository(mockClient.Object);
 
             // Act
-            var actual = await repository.GetPostAsync("slug");
+            var actual = await subject.GetPostAsync("slug");
 
             Assert.Null(actual);
         }
         
-        private MockHttpMessageHandler CreateMockHttp(
-            string expectedEndpoint,
-            string response)
+        private GhostBlogRepository CreateRepository(IGhostClient client)
         {
-            var mockHttp = new MockHttpMessageHandler(); 
-            mockHttp.Expect(
-                    HttpMethod.Get,
-                    expectedEndpoint)
-                .Respond("application/json", response);
-
-            return mockHttp;
-        }
-
-        private GhostBlogRepository CreateRepository(MockHttpMessageHandler mockHttp)
-        {
-            var httpClientFactory = CreateHttpClientFactory(mockHttp);
-            var options = CreateOptions();
             var logger = Mock.Of<ILogger<GhostBlogRepository>>();
 
-            return new GhostBlogRepository(options, httpClientFactory, logger);
-        }
-        
-        private IHttpClientFactory CreateHttpClientFactory(MockHttpMessageHandler mockHttp)
-        {
-            return Mock.Of<IHttpClientFactory>(m =>
-                m.CreateClient(It.IsAny<string>()) == mockHttp.ToHttpClient());
-        }
-        
-        private IOptions<GhostOptions> CreateOptions()
-        {
-            return Mock.Of<IOptions<GhostOptions>>(m =>
-                m.Value == new GhostOptions()
-                {
-                    ApiUrl = ApiUrl,
-                    ContentApiKey = ContentApiKey
-                });
+            return new GhostBlogRepository(client, logger);
         }
     }
 }
