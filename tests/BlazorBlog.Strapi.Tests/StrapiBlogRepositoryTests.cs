@@ -12,19 +12,6 @@ using Xunit;
 
 namespace BlazorBlog.Strapi.Tests
 {
-    class TestData
-    {
-        public static readonly PostContent PostContent = new()
-        {
-            Title = "Title",
-            Slug = "slug",
-            ContentMarkdown = "Hello",
-            PublishedAt = new DateTime(2021, 1, 1)
-        };
-
-        public static readonly BlogPost BlogPost = new(
-            "Title", "slug", "<p>Hello</p>\n", new DateTime(2021, 1, 1));
-    }
     public class StrapiBlogRepositoryTests
     {
         private const string BaseUrl = "https://example.com";
